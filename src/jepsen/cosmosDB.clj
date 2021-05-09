@@ -1,6 +1,8 @@
 (ns jepsen.cosmosDB
   (:require [jepsen.cli :as cli]
-            [jepsen.tests :as tests]))
+            [jepsen.tests :as tests]
+            [jepsen.os.debian :as debian]
+            [jepsen.cosmosDB [db :as db]]))
 
 ;(defn -main
 ;  "Handles command line arguments. Can either run a test, or a web server for
@@ -19,8 +21,11 @@
   :concurrency, ...), constructs a test map."
   [opts]
   (merge tests/noop-test
-         {:pure-generators true}
-         opts))
+         opts
+         {:name "cosmos db"
+          :os   debian/os
+          :db   db/db
+          :pure-generators true}))
 
 (defn -main
   "Handles command line arguments. Can either run a test, or a web server for
