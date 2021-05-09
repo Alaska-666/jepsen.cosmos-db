@@ -7,6 +7,7 @@
 
 (defn db
   "???"
+  [opts]
   (reify db/DB
     (setup! [_ test node]
       (info node "setup! cosmos db"))
