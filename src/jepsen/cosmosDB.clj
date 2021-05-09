@@ -1,4 +1,4 @@
-(ns cosmos-db-jepsen.core
+(ns jepsen.cosmosDB
   (:require [jepsen.cli :as cli]
             [jepsen.tests :as tests]))
 

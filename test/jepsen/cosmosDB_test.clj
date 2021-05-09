@@ -1,6 +1,6 @@
-(ns cosmos-db-jepsen.core-test
+(ns jepsen.cosmosDB-test
   (:require [clojure.test :refer :all]
-            [cosmos-db-jepsen.core :refer :all]))
+            [cosmos-db-jepsen.cosmosDB :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
