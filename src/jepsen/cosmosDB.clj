@@ -24,7 +24,7 @@
          opts
          {:name "cosmos db"
           :os   debian/os
-          :db   db/db
+          :db   (db/db opts)
           :pure-generators true}))
 
 (defn -main
