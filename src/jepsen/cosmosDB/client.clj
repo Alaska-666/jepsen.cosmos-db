@@ -2,8 +2,7 @@
   "Wraps the Cosmos DB Java client."
   (:require [clojure.walk :as walk]
             [clojure.tools.logging :refer [info warn]]
-            [jepsen [util :as util :refer [timeout]]]
-            [slingshot.slingshot :refer [try+ throw+]])
+            [jepsen [util :as util :refer [timeout]]])
   (:import (com.azure.cosmos CosmosClientBuilder
                              CosmosClient
                              ConsistencyLevel)))
