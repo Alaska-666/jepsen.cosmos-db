@@ -10,8 +10,11 @@
 
 (defrecord Client [conn]
   client/Client
+  ;(open! [this test node]
+  ;  (assoc this :conn (cosmosClient/build-client node account-host account-key ConsistencyLevel/EVENTUAL)))
+
   (open! [this test node]
-    (assoc this :conn (cosmosClient/build-client node account-host account-key ConsistencyLevel/EVENTUAL)))
+    this)
 
   (setup! [this test])
 
