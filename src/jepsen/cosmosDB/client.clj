@@ -12,13 +12,14 @@
 
 (defn ^CosmosClient build-client
   "???"
-  [node ^String host ^String key ^ConsistencyLevel level]
-  (.buildClient (.consistencyLevel (.key (.endpoint (CosmosClientBuilder.) host) key) level))
-  ;(.. (CosmosClientBuilder.)
-  ;    (endpoint host)
-  ;    (key key)
-  ;    (consistencyLevel level)
-  ;    (buildClient)))
+  [node ^String host ^String acc-key ^ConsistencyLevel level]
+  (let [builder (CosmosClientBuilder.)]
+    (-> builder
+        (.endpoint host)
+        (.key acc-key)
+        (.consistencyLevel level)
+        (.buildClient))
+  ))
 
 (defrecord Client [conn]
   client/Client
