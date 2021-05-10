@@ -6,8 +6,8 @@
                              CosmosClient
                              ConsistencyLevel)))
 
-(def account-key "6jL5JZKYLGGDkSUVb2xkgNbieOkSwhgbOzizB4COjoKummXYf174iWQo8iTg1FEolNPMNiYl70kqDVQtUU6eug==")
-(def account-host "https://4d76afcd-0ee0-4-231-b9ee.documents.azure.com:443/")
+(def account-key "")
+(def account-host "")
 
 
 (defn ^CosmosClient build-client
