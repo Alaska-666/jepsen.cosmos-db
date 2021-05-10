@@ -2,7 +2,8 @@
   (:require [jepsen.cli :as cli]
             [jepsen.tests :as tests]
             [jepsen.os.debian :as debian]
-            [jepsen.cosmosDB [db :as db]]))
+            [jepsen.cosmosDB [db :as db]])
+  (:import (jepsen.cosmosDB.list_append Client)))
 
 ;(defn -main
 ;  "Handles command line arguments. Can either run a test, or a web server for
@@ -22,9 +23,10 @@
   [opts]
   (merge tests/noop-test
          opts
-         {:name "cosmos db"
-          :os   debian/os
-          :db   (db/db opts)
+         {:name            "cosmos db"
+          :os              debian/os
+          :db              (db/db opts)
+          :client          (Client. nil)
           :pure-generators true}))
 
 (defn -main

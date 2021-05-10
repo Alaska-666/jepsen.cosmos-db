@@ -11,5 +11,5 @@
 (defn ^CosmosClient build-client
   "???"
   [node ^String host ^String key ^ConsistencyLevel level]
-  (((CosmosClientBuilder .setEndpoint host) .setKey key) .setConsistencyLevel level) .buildClient)
+  (((CosmosClientBuilder .endpoint host) .key key) .consistencyLevel level) .buildClient)
 

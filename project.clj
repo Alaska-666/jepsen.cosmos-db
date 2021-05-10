@@ -5,5 +5,5 @@
   :main jepsen.cosmosDB
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [jepsen "0.2.1-SNAPSHOT"]
-                 [com.azure/azure-cosmos "4.0.0-preview.1"]]
+                 [com.azure/azure-cosmos "4.8.0"]]
   :repl-options {:init-ns jepsen.cosmosDB})
