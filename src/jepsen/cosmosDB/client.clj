@@ -13,8 +13,8 @@
 (defn ^CosmosClient build-client
   "???"
   [node ^String host ^String key ^ConsistencyLevel level]
-  (((CosmosClientBuilder .endpoint host) .key key) .consistencyLevel level) .buildClient)
-
+  (.buildClient (.consistencyLevel (.key (.endpoint CosmosClientBuilder host) key) level))
+  )
 
 (defrecord Client [conn]
   client/Client

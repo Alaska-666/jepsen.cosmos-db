@@ -1,8 +1,10 @@
 (ns jepsen.cosmosDB
-  (:require [jepsen.cli :as cli]
-            [jepsen.tests :as tests]
+  (:require [clojure.tools.logging :refer :all]
+            [jepsen [cli :as cli]
+             [tests :as tests]]
             [jepsen.os.debian :as debian]
-            [jepsen.cosmosDB [db :as db]])
+            [jepsen.cosmosDB [db :as db]
+             [client :as client]])
   (:import (jepsen.cosmosDB.client Client)))
 
 ;(defn -main
