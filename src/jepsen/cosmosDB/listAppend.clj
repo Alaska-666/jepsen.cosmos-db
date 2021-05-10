@@ -1,4 +1,4 @@
-(ns jepsen.cosmosDB.list_append
+(ns jepsen.cosmosDB.listAppend
   (:require [clojure.tools.logging :refer :all]
             [jepsen [client :as client]]
             [jepsen.cosmosDB [client :as c]])

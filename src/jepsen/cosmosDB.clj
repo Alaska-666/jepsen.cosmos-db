@@ -3,7 +3,7 @@
             [jepsen.tests :as tests]
             [jepsen.os.debian :as debian]
             [jepsen.cosmosDB [db :as db]])
-  (:import (jepsen.cosmosDB.list_append Client)))
+  (:import (jepsen.cosmosDB.listAppend Client)))
 
 ;(defn -main
 ;  "Handles command line arguments. Can either run a test, or a web server for
