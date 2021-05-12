@@ -21,14 +21,13 @@
 ;                   (cli/serve-cmd))
 ;            args))
 
+
 (def consistency-levels
-  "A map of consistency levels names to functions that construct ConsistencyLevel, given opts."
-  {:eventual ConsistencyLevel/EVENTUAL
-   :session ConsistencyLevel/SESSION
-   :staleness ConsistencyLevel/BOUNDED_STALENESS
-   :strong ConsistencyLevel/STRONG
-   :prefix ConsistencyLevel/CONSISTENT_PREFIX
-   })
+  {:eventual  (ConsistencyLevel/EVENTUAL)
+   :session   (ConsistencyLevel/SESSION)
+   :staleness (ConsistencyLevel/BOUNDED_STALENESS)
+   :strong    (ConsistencyLevel/STRONG)
+   :prefix    (ConsistencyLevel/CONSISTENT_PREFIX)})
 
 (def cli-opts
   "Additional command line options."
