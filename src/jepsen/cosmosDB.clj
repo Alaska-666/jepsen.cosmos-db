@@ -21,11 +21,11 @@
 
 (def consistency-levels
   "A map of consistency levels names to functions that construct ConsistencyLevel, given opts."
-  {"eventual" ConsistencyLevel/EVENTUAL
-   "session" ConsistencyLevel/SESSION
-   "staleness" ConsistencyLevel/BOUNDED_STALENESS
-   "strong" ConsistencyLevel/STRONG
-   "prefix" ConsistencyLevel/CONSISTENT_PREFIX
+  {:eventual ConsistencyLevel/EVENTUAL
+   :session ConsistencyLevel/SESSION
+   :staleness ConsistencyLevel/BOUNDED_STALENESS
+   :strong ConsistencyLevel/STRONG
+   :prefix ConsistencyLevel/CONSISTENT_PREFIX
    })
 
 (def cli-opts
@@ -43,10 +43,11 @@
   [opts]
   (let [host    (str (:host opts))
         key    (str (:key opts))
-        level ((get consistency-levels (:level opts)) opts)]
+        level-name (:level opts)
+        level      ((consistency-levels level-name) opts)]
   (merge tests/noop-test
          opts
-         {:name            (str "cosmos db consistency level=" level " ")
+         {:name            (str "cosmos db consistency level=" level-name " ")
           :os              debian/os
           :db              (db/db opts)
           :client          (Client. nil host key level)
