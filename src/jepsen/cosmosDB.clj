@@ -32,8 +32,8 @@
 
 (def cli-opts
   "Additional command line options."
-  [["-k" "--key STRING" "ACCOUNT KEY" :parse-fn read-string]
-   ["-h" "--host STRING" "ACCOUNT HOST" :parse-fn read-string]
+  [["-k" "--key STRING" "ACCOUNT KEY" :parse-fn read-string :default nil]
+   ["-h" "--host STRING" "ACCOUNT HOST" :parse-fn read-string :default nil]
    ["-l" "--level LEVEL" "Consistency Level(eventual, session, staleness, strong, prefix"]
    :missing  (str "--level " (cli/one-of consistency-levels))
    :parse-fn read-string
