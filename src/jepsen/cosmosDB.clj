@@ -50,11 +50,11 @@
   [opts]
   (pprint opts)
   (pprint (:consistency opts))
-  (pprint ((consistency-levels (:consistency opts)) opts))
+  (pprint (get consistency-levels (:consistency opts)))
   (let [host (:host opts)
         key  (:key opts)
         consistency-level-name (:consistency opts)
-        consistency-level      ((consistency-levels consistency-level-name) opts)]
+        consistency-level      (get consistency-levels consistency-level-name)]
   (merge tests/noop-test
          opts
          {:name            (str "cosmos db consistency level=" consistency-level-name " ")
