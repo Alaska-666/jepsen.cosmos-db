@@ -44,6 +44,7 @@
   "Given an options map from the command line runner (e.g. :nodes, :ssh,
   :concurrency, ...), constructs a test map."
   [opts]
+  (pprint opts)
   (let [host (:host opts)
         key  (:key opts)
         level-name (:level opts)
