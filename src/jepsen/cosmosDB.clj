@@ -48,16 +48,12 @@
   "Given an options map from the command line runner (e.g. :nodes, :ssh,
   :concurrency, ...), constructs a test map."
   [opts]
-  (pprint opts)
-  (pprint (:consistency opts))
-  (pprint (get consistency-levels (:consistency opts)))
-  (let [host (:host opts)
-        key  (:key opts)
-        consistency-level-name (:consistency opts)
-        consistency-level      (get consistency-levels consistency-level-name)]
+  (let [host              (:host opts)
+        key               (:key opts)
+        consistency-level (get consistency-levels (:consistency opts))]
   (merge tests/noop-test
          opts
-         {:name            (str "cosmos db consistency level=" consistency-level-name " ")
+         {:name            (str "cosmos db consistency level=" (:consistency opts) " ")
           :os              debian/os
           :db              (db/db opts)
           :client          (Client. nil host key consistency-level)
