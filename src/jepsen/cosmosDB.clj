@@ -49,6 +49,8 @@
   :concurrency, ...), constructs a test map."
   [opts]
   (pprint opts)
+  (pprint (:consistency opts))
+  (pprint ((consistency-levels (:consistency opts)) opts))
   (let [host (:host opts)
         key  (:key opts)
         consistency-level-name (:consistency opts)
