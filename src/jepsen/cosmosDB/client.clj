@@ -6,9 +6,6 @@
                              CosmosClient
                              ConsistencyLevel)))
 
-(def account-key "")
-(def account-host "")
-
 
 (defn ^CosmosClient build-client
   "???"
@@ -18,18 +15,18 @@
         (.endpoint host)
         (.key acc-key)
         (.consistencyLevel level)
+        (.contentResponseOnWriteEnabled true)
         (.buildClient))
   ))
 
-(defrecord Client [conn]
-  client/Client
-  (open! [this test node]
-    (assoc this :conn (build-client node account-host account-key ConsistencyLevel/EVENTUAL)))
-
-  (setup! [this test])
-
-  (invoke! [_ test op])
-
-  (teardown! [this test])
-
-  (close! [_ test]))
+(defn ^CosmosClient build-async-client
+  "???"
+  [node ^String host ^String acc-key ^ConsistencyLevel level]
+  (let [builder (CosmosClientBuilder.)]
+    (-> builder
+        (.endpoint host)
+        (.key acc-key)
+        (.consistencyLevel level)
+        (.contentResponseOnWriteEnabled true)
+        (.buildAsyncClient))
+    ))
