@@ -1,5 +1,7 @@
 (ns jepsen.cosmosDB
-  (:require [clojure.tools.logging :refer :all]
+  (:require [clojure.tools.logging :refer [info warn]]
+            [clojure [string :as str]
+             [pprint :refer [pprint]]]
             [jepsen [cli :as cli]
              [tests :as tests]]
             [jepsen.os.debian :as debian]
