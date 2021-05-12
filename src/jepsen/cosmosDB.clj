@@ -45,9 +45,9 @@
   :concurrency, ...), constructs a test map."
   [opts]
   (pprint opts)
-  (let [host (:host opts)
-        key  (:key opts)
-        level-name (:level opts)
+  (let [host "https://4d76afcd-0ee0-4-231-b9ee.documents.azure.com:443/"
+        key  "6jL5JZKYLGGDkSUVb2xkgNbieOkSwhgbOzizB4COjoKummXYf174iWQo8iTg1FEolNPMNiYl70kqDVQtUU6eug=="
+        level-name "strong"
         level      ((consistency-levels level-name) opts)]
   (merge tests/noop-test
          opts
