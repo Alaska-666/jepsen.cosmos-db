@@ -28,6 +28,12 @@
    "prefix" ConsistencyLevel/CONSISTENT_PREFIX
    })
 
+(def cli-opts
+  "Additional command line options."
+  [["-k" "--key" "ACCOUNT KEY"]
+   ["-h" "--host" "ACCOUNT HOST"]
+   ["-l" "--level" "Consistency Level(eventual, session, staleness, strong, prefix"]])
+
 
 (defn cosmosdb-test
   "Given an options map from the command line runner (e.g. :nodes, :ssh,
@@ -50,6 +56,7 @@
   "Handles command line arguments. Can either run a test, or a web server for
   browsing results."
   [& args]
-  (cli/run! (merge (cli/single-test-cmd {:test-fn cosmosdb-test})
+  (cli/run! (merge (cli/single-test-cmd {:test-fn cosmosdb-test
+                                         :opt-spec cli-opts})
                    (cli/serve-cmd))
             args))
