@@ -63,9 +63,8 @@
   "Handles command line arguments. Can either run a test, or a web server for
   browsing results."
   [& args]
-  (pprint args)
-  (pprint cli-opts)
-  (cli/run! (merge (cli/single-test-cmd {:test-fn cosmosdb-test
+  (cli/run! (merge (cli/single-test-cmd {:test-fn  cosmosdb-test
                                          :opt-spec cli-opts})
                    (cli/serve-cmd))
-            args))
+            args)
+  )
