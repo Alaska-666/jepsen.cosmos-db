@@ -32,9 +32,15 @@
 
 (def cli-opts
   "Additional command line options."
-  [["-l" "--level LEVEL" "Consistency Level(eventual, session, staleness, strong, prefix"]
-   :missing  (str "--level " (cli/one-of consistency-levels))
-   :validate [consistency-levels (cli/one-of consistency-levels)]])
+  [["-c" "--consistency LEVEL" "What level of consistency we should set: eventual, session, staleness, strong, prefix."
+    :default :strong
+    :parse-fn keyword
+    :validate [#{:eventual
+                 :session
+                 :staleness
+                 :strong
+                 :prefix}
+               "Should be one of eventual, session, staleness, strong, prefix."]]])
 
 
 (defn cosmosdb-test
@@ -44,17 +50,18 @@
   (pprint opts)
   (let [host (:host opts)
         key  (:key opts)
-        level-name (:level opts)
-        level      ((consistency-levels level-name) opts)]
+        consistency-level-name (:consistency opts)
+        consistency-level      ((consistency-levels consistency-level-name) opts)]
   (merge tests/noop-test
          opts
-         {:name            (str "cosmos db consistency level=" level-name " ")
+         {:name            (str "cosmos db consistency level=" consistency-level-name " ")
           :os              debian/os
           :db              (db/db opts)
-          :client          (Client. nil host key level)
+          :client          (Client. nil host key consistency-level)
           :pure-generators true})
   )
   )
+
 
 (defn -main
   "Handles command line arguments. Can either run a test, or a web server for
