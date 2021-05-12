@@ -64,6 +64,7 @@
   browsing results."
   [& args]
   (pprint args)
+  (pprint cli-opts)
   (cli/run! (merge (cli/single-test-cmd {:test-fn cosmosdb-test
                                          :opt-spec cli-opts})
                    (cli/serve-cmd))
