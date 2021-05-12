@@ -32,11 +32,8 @@
 
 (def cli-opts
   "Additional command line options."
-  [["-k" "--key STRING" "ACCOUNT KEY" :parse-fn read-string :default nil]
-   ["-h" "--host STRING" "ACCOUNT HOST" :parse-fn read-string :default nil]
-   ["-l" "--level LEVEL" "Consistency Level(eventual, session, staleness, strong, prefix"]
+  [["-l" "--level LEVEL" "Consistency Level(eventual, session, staleness, strong, prefix"]
    :missing  (str "--level " (cli/one-of consistency-levels))
-   :parse-fn read-string
    :validate [consistency-levels (cli/one-of consistency-levels)]])
 
 
@@ -63,7 +60,8 @@
   "Handles command line arguments. Can either run a test, or a web server for
   browsing results."
   [& args]
-  (cli/run! (merge (cli/single-test-cmd {:test-fn  cosmosdb-test})
+  (cli/run! (merge (cli/single-test-cmd {:test-fn  cosmosdb-test
+                                         :opt-spec cli-opts})
                    (cli/serve-cmd))
             args)
   )
