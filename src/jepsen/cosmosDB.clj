@@ -30,9 +30,9 @@
 
 (def cli-opts
   "Additional command line options."
-  [["-k" "--key VALUE" "ACCOUNT KEY"]
-   ["-h" "--host VALUE" "ACCOUNT HOST"]
-   ["-l" "--level NAME" "Consistency Level(eventual, session, staleness, strong, prefix"]
+  [["-k" "--key STRING" "ACCOUNT KEY"]
+   ["-h" "--host STRING" "ACCOUNT HOST"]
+   ["-l" "--level LEVEL" "Consistency Level(eventual, session, staleness, strong, prefix"]
    :missing  (str "--level " (cli/one-of consistency-levels))
    :validate [consistency-levels (cli/one-of consistency-levels)]])
 
