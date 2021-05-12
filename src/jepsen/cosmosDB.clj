@@ -40,7 +40,9 @@
                  :staleness
                  :strong
                  :prefix}
-               "Should be one of eventual, session, staleness, strong, prefix."]]])
+               "Should be one of eventual, session, staleness, strong, prefix."]]
+   [nil "--key STRING" "Azure Cosmos DB account key." :default "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="]
+   [nil "--host STRING" "Azure Cosmos DB account host." :default "https://localhost:8081"]])
 
 
 (defn cosmosdb-test
