@@ -20,7 +20,7 @@
 ;            args))
 
 (def consistency-levels
-  "A map of workload names to functions that construct workloads, given opts."
+  "A map of consistency levels names to functions that construct ConsistencyLevel, given opts."
   {"eventual" ConsistencyLevel/EVENTUAL
    "session" ConsistencyLevel/SESSION
    "staleness" ConsistencyLevel/BOUNDED_STALENESS
