@@ -41,8 +41,8 @@
   "Given an options map from the command line runner (e.g. :nodes, :ssh,
   :concurrency, ...), constructs a test map."
   [opts]
-  (let [host    (str (:host opts))
-        key    (str (:key opts))
+  (let [host (:host opts)
+        key  (:key opts)
         level-name (:level opts)
         level      ((consistency-levels level-name) opts)]
   (merge tests/noop-test
