@@ -1,6 +1,8 @@
 (ns jepsen.cosmosDB.client
   "Wraps the Cosmos DB Java client."
   (:require [clojure.tools.logging :refer :all]
+            [clojure [string :as str]
+             [pprint :refer [pprint]]]
             [jepsen [client :as client]])
   (:import (com.azure.cosmos CosmosClientBuilder
                              CosmosClient
@@ -36,6 +38,7 @@
   [^CosmosClient client ^String databaseName]
   ;CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(databaseName);
   ;database = client.getDatabase(databaseResponse.getProperties().getId());
+  (pprint (str "Create database " databaseName " if not exists."))
   (let [id (.getId (.getProperties (createDatabaseIfNotExists client databaseName)))]
     (.getDatabase client id)
     )
