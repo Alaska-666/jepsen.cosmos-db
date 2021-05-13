@@ -33,6 +33,7 @@
   (close! [_ test]
     (try
       (if (not (nil? container)) (.delete container))
-      (if (not (nil? database))  (.delete database)))
-    (catch CosmosException e nil))
+      (if (not (nil? database))  (.delete database))
+      (catch CosmosException e nil)
+      ))
   )
