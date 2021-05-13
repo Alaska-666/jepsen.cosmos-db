@@ -19,7 +19,6 @@
         :conn       (c/build-client node account-host account-key consistency-level)
         :database   (c/createDatabaseIfNotExists conn databaseName )
         :container  nil)
-    (pprint (str "Checking database " (.getId database) " completed!\n"))
     )
 
   (setup! [this test])
