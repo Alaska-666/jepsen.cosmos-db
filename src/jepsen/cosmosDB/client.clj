@@ -39,6 +39,8 @@
   ;CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(databaseName);
   ;database = client.getDatabase(databaseResponse.getProperties().getId());
   (let [id (.getId (.getProperties (.createDatabaseIfNotExists client databaseName)))]
+    (pprint id)
+    (pprint client)
     (.getDatabase client id)
     )
   )
