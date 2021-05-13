@@ -7,7 +7,9 @@
   (:import (com.azure.cosmos CosmosClientBuilder
                              CosmosClient
                              ConsistencyLevel
-                             CosmosDatabase)))
+                             CosmosDatabase
+                             CosmosAsyncDatabase
+                             CosmosAsyncClient)))
 
 
 (defn ^CosmosClient build-client
@@ -22,7 +24,7 @@
         (.buildClient))
   ))
 
-(defn ^CosmosClient build-async-client
+(defn ^CosmosAsyncClient build-async-client
   "???"
   [node ^String host ^String acc-key ^ConsistencyLevel level]
   (let [builder (CosmosClientBuilder.)]
@@ -38,10 +40,25 @@
   [^CosmosClient client ^String databaseName]
   ;CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(databaseName);
   ;database = client.getDatabase(databaseResponse.getProperties().getId());
-  (pprint client)
-  (pprint databaseName)
   (let [id (.getId (.getProperties (.createDatabaseIfNotExists client databaseName)))]
-    (pprint id)
     (.getDatabase client id)
     )
   )
+
+;(defn ^CosmosAsyncDatabase createAsyncDatabaseIfNotExists
+;  [^CosmosAsyncClient client ^String databaseName]
+;  ;Mono<CosmosDatabaseResponse> databaseIfNotExists = client.createDatabaseIfNotExists(databaseName);
+;  ;databaseIfNotExists
+;  ;.flatMap(databaseResponse -> {
+;  ;                              database = client.getDatabase(databaseResponse.getProperties().getId());
+;  ;                              logger.info("Checking database " + database.getId() + " completed!\n");
+;  ;                              return Mono.empty();
+;  ;                              })
+;  ;.block();
+;  (let [databaseIfNotExists (.createDatabaseIfNotExists client databaseName)]
+;    (-> databaseIfNotExists
+;        (.flatMap
+;          )
+;        (.block)
+;        ))
+;  )
