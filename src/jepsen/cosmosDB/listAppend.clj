@@ -19,6 +19,8 @@
   (open! [this test node]
     (let [conn (c/build-client node account-host account-key consistency-level)]
       [database (c/createDatabaseIfNotExists conn databaseName)]
+      (pprint conn)
+      (pprint database)
       (assoc this
         :conn       conn
         :database   database

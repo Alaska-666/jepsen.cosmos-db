@@ -59,7 +59,6 @@
   (pprint database)
   (pprint (. ThroughputProperties createManualThroughput throughput))
   (pprint (CosmosContainerProperties. containerName partitionKeyPath))
-  (pprint (.createContainerIfNotExists database (CosmosContainerProperties. containerName partitionKeyPath) (. ThroughputProperties createManualThroughput throughput)))
   (let [containerProperties (CosmosContainerProperties. containerName partitionKeyPath)
         throughputProperties (. ThroughputProperties createManualThroughput throughput)
         containerResponse (.createContainerIfNotExists database containerProperties throughputProperties)]
