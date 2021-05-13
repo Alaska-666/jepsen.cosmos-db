@@ -33,6 +33,6 @@
   (teardown! [this test])
 
   (close! [_ test]
-    (.delete container)
-    (.delete database))
+    (if nil? container (.delete container))
+    (if nil? database  (.delete database)))
   )
