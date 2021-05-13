@@ -17,7 +17,7 @@
   (open! [this test node]
       (assoc this
         :conn       (c/build-client node account-host account-key consistency-level)
-        :database   (c/createDatabaseIfNotExists conn databaseName )
+        :database   (c/createDatabaseIfNotExists conn databaseName)
         :container  nil)
     )
 
