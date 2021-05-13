@@ -8,6 +8,7 @@
                              CosmosClient
                              ConsistencyLevel
                              CosmosDatabase
+                             CosmosException
                              CosmosAsyncDatabase
                              CosmosContainer
                              CosmosAsyncClient)
@@ -61,6 +62,16 @@
         containerResponse (.createContainerIfNotExists database containerProperties throughputProperties)]
     (.getContainer database (.getId (.getProperties containerResponse)))
     )
+  )
+
+(defmacro with-errors
+  "Takes an operation and a body; evals body, turning known errors into :fail
+  or :info ops."
+  [op & body]
+  `(try ~@body
+        (catch CosmosException e#
+          (assoc ~op :type :fail, :error [:ex-info (.getMessage e#)]))
+        )
   )
 
 ;(defn ^CosmosAsyncDatabase createAsyncDatabaseIfNotExists
