@@ -9,20 +9,22 @@
                              CosmosClient
                              ConsistencyLevel)))
 
-(def databaseName   "AzureJepsenTestDB")
-(def containerName  "JepsenTestContainer")
+(def databaseName      "AzureJepsenTestDB")
+(def containerName     "JepsenTestContainer")
+(def throughput        400)
+(def partitionKeyPath  "/id")
 
 (defrecord Client [conn database container account-host account-key consistency-level]
   client/Client
   (open! [this test node]
     (let [conn (c/build-client node account-host account-key consistency-level)]
+      [database (c/createDatabaseIfNotExists conn databaseName)]
       (assoc this
         :conn       conn
-        :database   (c/createDatabaseIfNotExists conn databaseName)
-        :container  nil)
+        :database   database
+        :container  (c/createContainerIfNotExists database containerName throughput partitionKeyPath))
       )
     )
-
 
   (setup! [this test])
 
