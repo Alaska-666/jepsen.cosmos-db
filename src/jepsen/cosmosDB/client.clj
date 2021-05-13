@@ -7,8 +7,7 @@
   (:import (com.azure.cosmos CosmosClientBuilder
                              CosmosClient
                              ConsistencyLevel
-                             CosmosDatabase
-                             CosmosDatabaseResponse)))
+                             CosmosDatabase)))
 
 
 (defn ^CosmosClient build-client
