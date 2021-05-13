@@ -63,8 +63,11 @@
 
 
 (defn workload
-  "A generator, client, and checker for a list-append test."
+  "A generator, client, and checker for a list-append test.
+  FIXME: fix consistency-models and other options !!!!!!
+  "
   [opts]
+  (pprint opts)
   (assoc (list-append/test {:key-count          10
                             :key-dist           :exponential
                             :max-txn-length     (:max-txn-length opts 4)

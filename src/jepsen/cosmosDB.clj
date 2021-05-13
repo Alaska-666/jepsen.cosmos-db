@@ -55,17 +55,20 @@
    [nil "--nemesis FAULTS" "A comma-separated list of nemesis faults to enable"
     :parse-fn parse-nemesis-spec
     :validate [(partial every? #{:pause :kill :partition :clock :member})
-               "Faults must be pause, kill, partition, clock, or member, or the special faults all or none."]]])
+               "Faults must be pause, kill, partition, clock, or member, or the special faults all or none."]]
+   ["-w" "--workload NAME" "What workload should we run?"
+    :parse-fn keyword
+    :validate [workloads (cli/one-of workloads)]]])
 
 (defn cosmosdb-test
   "Given an options map from the command line runner (e.g. :nodes, :ssh,
   :concurrency, ...), constructs a test map."
   [opts]
-  (let [host              (:host opts)
-        key               (:key opts)
-        consistency-level (get consistency-levels (:consistency opts))
-        workload-name (:workload opts)
-        workload      ((workloads workload-name) opts)]
+  (let [host               (:host opts)
+        key                (:key opts)
+        consistency-level  (get consistency-levels (:consistency opts))
+        workload-name      (:workload opts)
+        workload           ((workloads workload-name) opts)]
   (merge tests/noop-test
          opts
          {:name             (str "cosmos db consistency level=" (:consistency opts) " ")
