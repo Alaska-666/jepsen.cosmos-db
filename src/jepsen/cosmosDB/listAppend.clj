@@ -20,7 +20,7 @@
     (let [conn (c/build-client node account-host account-key consistency-level)]
       [database (c/createDatabaseIfNotExists conn databaseName)]
       (pprint conn)
-      (pprint database)
+      (pprint (str "DATABASE " database))
       (assoc this
         :conn       conn
         :database   database
