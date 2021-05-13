@@ -7,7 +7,8 @@
   (:import (com.azure.cosmos CosmosClientBuilder
                              CosmosClient
                              ConsistencyLevel
-                             CosmosDatabase)))
+                             CosmosDatabase
+                             CosmosDatabaseResponse)))
 
 
 (defn ^CosmosClient build-client
@@ -38,7 +39,7 @@
   [^CosmosClient client ^String databaseName]
   ;CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(databaseName);
   ;database = client.getDatabase(databaseResponse.getProperties().getId());
-  (let [id (.getId (.getProperties (createDatabaseIfNotExists client databaseName)))]
+  (let [id (.getId (.getProperties (.createDatabaseIfNotExists client databaseName)))]
     (.getDatabase client id)
     )
   )
