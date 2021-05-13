@@ -15,7 +15,7 @@
 (defrecord Client [conn database container account-host account-key consistency-level]
   client/Client
   (open! [this test node]
-    (let [conn (c/build-client node account-host account-key consistency-level)]
+    (let [conn (c/build-async-client node account-host account-key consistency-level)]
       (assoc this
         :conn       conn
         :database   (c/createDatabaseIfNotExists conn databaseName)
