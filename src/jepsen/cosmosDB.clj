@@ -56,7 +56,7 @@
          {:name            (str "cosmos db consistency level=" (:consistency opts) " ")
           :os              debian/os
           :db              (db/db opts)
-          :client          (Client. nil host key consistency-level)
+          :client          (Client. host key consistency-level)
           :pure-generators true})
   )
   )

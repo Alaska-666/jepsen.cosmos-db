@@ -4,7 +4,8 @@
             [jepsen [client :as client]])
   (:import (com.azure.cosmos CosmosClientBuilder
                              CosmosClient
-                             ConsistencyLevel)))
+                             ConsistencyLevel
+                             CosmosDatabase)))
 
 
 (defn ^CosmosClient build-client
@@ -30,3 +31,12 @@
         (.contentResponseOnWriteEnabled true)
         (.buildAsyncClient))
     ))
+
+(defn ^CosmosDatabase createDatabaseIfNotExists
+  [^CosmosClient client ^String databaseName]
+  ;CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(databaseName);
+  ;database = client.getDatabase(databaseResponse.getProperties().getId());
+  (let [id (.getId (.getProperties (createDatabaseIfNotExists client databaseName)))]
+    (.getDatabase client id)
+    )
+  )

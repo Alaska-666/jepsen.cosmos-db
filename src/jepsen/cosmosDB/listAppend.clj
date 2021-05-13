@@ -7,10 +7,19 @@
                              CosmosClient
                              ConsistencyLevel)))
 
-(defrecord Client [conn account-host account-key consistency-level]
+(def databaseName   "AzureJepsenTestDB")
+(def containerName  "JepsenTestContainer")
+
+(defrecord Client [account-host account-key consistency-level]
   client/Client
   (open! [this test node]
-    (assoc this :conn (c/build-client node account-host account-key consistency-level)))
+    (assoc this :client (c/build-client node account-host account-key consistency-level)))
+  (open! [this test node]
+      (assoc this
+        :node       node
+        :conn       (c/build-client node account-host account-key consistency-level)
+        :database   (c/createDatabaseIfNotExists :conn databaseName )
+        :container  nil))
 
   (setup! [this test])
 
