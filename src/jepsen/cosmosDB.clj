@@ -3,7 +3,8 @@
             [clojure [string :as str]
              [pprint :refer [pprint]]]
             [jepsen [cli :as cli]
-             [tests :as tests]]
+             [tests :as tests]
+             [generator :as gen]]
             [jepsen.os.debian :as debian]
             [jepsen.cosmosDB [db :as db]
              [listAppend :as listAppend]])
@@ -57,6 +58,10 @@
           :os              debian/os
           :db              (db/db opts)
           :client          (Client. nil nil nil host key consistency-level)
+          ;:generator       (->> r
+          ;                      (gen/stagger 1)
+          ;                      (gen/nemesis nil)
+          ;                      (gen/time-limit 15))
           :pure-generators true})
   )
   )
