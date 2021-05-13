@@ -53,13 +53,12 @@
   ;CosmosContainerProperties containerProperties =
   ;new CosmosContainerProperties(containerName, "/lastName");
   ;
-  ;//  Create container with 400 RU/s
   ;ThroughputProperties throughputProperties = ThroughputProperties.createManualThroughput(400);
   ;CosmosContainerResponse containerResponse = database.createContainerIfNotExists(containerProperties, throughputProperties);
   ;container = database.getContainer(containerResponse.getProperties().getId());
   (let [containerProperties (CosmosContainerProperties. containerName partitionKeyPath)
-        throughputProperties (.createManualThroughput (ThroughputProperties.) throughput)
-        containerResponse (.createContainerIfNotExists database [containerProperties throughputProperties])]
+        throughputProperties (.createManualThroughput ThroughputProperties throughput)
+        containerResponse (.createContainerIfNotExists database containerProperties throughputProperties)]
     (.getContainer database (.getId (.getProperties containerResponse)))
     )
   )
