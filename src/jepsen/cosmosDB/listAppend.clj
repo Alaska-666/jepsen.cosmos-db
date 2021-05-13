@@ -5,9 +5,7 @@
              [pprint :refer [pprint]]]
             [jepsen [client :as client]]
             [jepsen.cosmosDB [client :as c]])
-  (:import (com.azure.cosmos CosmosClientBuilder
-                             CosmosClient
-                             ConsistencyLevel)))
+  (:import (com.azure.cosmos CosmosException)))
 
 (def databaseName      "AzureJepsenTestDB")
 (def containerName     "JepsenTestContainer")
@@ -33,6 +31,8 @@
   (teardown! [this test])
 
   (close! [_ test]
-    (if (not (nil? container)) (.delete container))
-    (if (not (nil? database))  (.delete database)))
+    (try
+      (if (not (nil? container)) (.delete container))
+      (if (not (nil? database))  (.delete database)))
+    (catch CosmosException e nil))
   )
