@@ -13,9 +13,11 @@
                              CosmosContainer
                              CosmosAsyncClient)
            (com.azure.cosmos.models CosmosContainerProperties
+                                    CosmosItemRequestOptions
                                     PartitionKey
                                     ThroughputProperties)
-           (jepsen.cosmosDB MyList)))
+           (jepsen.cosmosDB MyList)
+           (java.util Collections Arrays)))
 
 
 (defn ^CosmosClient build-client
@@ -87,12 +89,34 @@
   (.getItem (.readItem container id (PartitionKey. id) (. MyList class)))
   )
 
+(defn create-empty-item
+  [^CosmosContainer container id]
+  ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
+  ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Collections.emptyList()), new PartitionKey(id), cosmosItemRequestOptions);
+  (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
+        item (.createItem container (MyList. id (. Collections emptyList)) (PartitionKey. id) cosmosItemRequestOptions)]
+    (info :item     (.getItem item))
+          :duration (.getDuration item)
+    )
+  )
+
+(defn create-item
+  [^CosmosContainer container id values]
+  ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
+  ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Arrays.asList(values)), new PartitionKey(id), cosmosItemRequestOptions);
+  (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
+        item (.createItem container (MyList. id (.asList (. Arrays ) values)) (PartitionKey. id) cosmosItemRequestOptions)]
+    (info :item     (.getItem item))
+          :duration (.getDuration item)
+    )
+  )
+
 (defn upsert-item
   [^CosmosContainer container id newValue]
   ;MyList list = container.readItem(id, new PartitionKey(id), MyList.class).getItem();
   ;list.getValues().add(newValue);
   ;CosmosItemResponse<MyList> item = container.upsertItem(list);
-  (let [item (.getItem (.readItem container id (PartitionKey. id) (. MyList class)))]
+  (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (. MyList class)))]
     (.add (.getValues item) newValue)
     (.upsertItem container item)
     )
