@@ -3,17 +3,19 @@
   (:require [clojure.tools.logging :refer :all]
             [clojure [string :as str]
              [pprint :refer [pprint]]]
-            [jepsen [client :as client]])
+            [jepsen [client :as client]]
+            [jepsen.cosmosDB [MyList :as MyList]])
   (:import (com.azure.cosmos CosmosClientBuilder
                              CosmosClient
                              ConsistencyLevel
                              CosmosDatabase
                              CosmosException
-                             CosmosAsyncDatabase
                              CosmosContainer
                              CosmosAsyncClient)
            (com.azure.cosmos.models CosmosContainerProperties
-                                    ThroughputProperties)))
+                                    PartitionKey
+                                    ThroughputProperties)
+           (jepsen.cosmosDB MyList)))
 
 
 (defn ^CosmosClient build-client
@@ -70,8 +72,30 @@
   [op & body]
   `(try ~@body
         (catch CosmosException e#
-          (assoc ~op :type :fail, :error [:ex-info (.getMessage e#)]))
+          (condp re-find (.getMessage e#)
+            ; This... seems like a bug too
+            (assoc ~op :type :fail, :error [:ex-info (.getMessage e#)])
+            (throw e#)))
         )
+  )
+
+
+(defn ^MyList read-item
+  "Find a object by ID"
+  [^CosmosContainer container id]
+  ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
+  (.getItem (.readItem container id (PartitionKey. id) (. MyList class)))
+  )
+
+(defn upsert-item
+  [^CosmosContainer container id newValue]
+  ;MyList list = container.readItem(id, new PartitionKey(id), MyList.class).getItem();
+  ;list.getValues().add(newValue);
+  ;CosmosItemResponse<MyList> item = container.upsertItem(list);
+  (let [item (.getItem (.readItem container id (PartitionKey. id) (. MyList class)))]
+    (.add (.getValues item) newValue)
+    (.upsertItem container item)
+    )
   )
 
 ;(defn ^CosmosAsyncDatabase createAsyncDatabaseIfNotExists

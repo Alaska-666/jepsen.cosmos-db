@@ -1,26 +1,20 @@
 (ns jepsen.cosmosDB
   (:require [clojure.tools.logging :refer [info warn]]
             [clojure [string :as str]
-             [pprint :refer [pprint]]]
+                     [pprint :refer [pprint]]]
             [jepsen [cli :as cli]
-             [tests :as tests]
-             [generator :as gen]]
+                    [checker :as checker]
+                    [tests :as tests]
+                    [generator :as gen]
+                    [util :as util :refer [parse-long]]]
             [jepsen.os.debian :as debian]
             [jepsen.cosmosDB [db :as db]
-             [listAppend :as listAppend]])
-  (:import (jepsen.cosmosDB.listAppend Client))
-  (:import (com.azure.cosmos ConsistencyLevel)))
+                             [append :as append]
+                             [nemesis :as nemesis]]))
 
 (def workloads
-  {:list-append listAppend/workload
+  {:list-append append/workload
    :none        (fn [_] tests/noop-test)})
-
-(def consistency-levels
-  {:eventual  (ConsistencyLevel/EVENTUAL)
-   :session   (ConsistencyLevel/SESSION)
-   :staleness (ConsistencyLevel/BOUNDED_STALENESS)
-   :strong    (ConsistencyLevel/STRONG)
-   :prefix    (ConsistencyLevel/CONSISTENT_PREFIX)})
 
 (def special-nemeses
   "A map of special nemesis names to collections of faults"
@@ -46,39 +40,72 @@
                  :strong
                  :prefix}
                "Should be one of eventual, session, staleness, strong, prefix."]]
+
    [nil "--key STRING" "Azure Cosmos DB account key."
     :default "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="]
+
    [nil "--host STRING" "Azure Cosmos DB account host."
     :default "https://localhost:8081"]
+
    [nil "--singleton-txns" "If set, execute even single operations in a transactional context."
     :default false]
+
    [nil "--nemesis FAULTS" "A comma-separated list of nemesis faults to enable"
     :parse-fn parse-nemesis-spec
     :validate [(partial every? #{:pause :kill :partition :clock :member})
                "Faults must be pause, kill, partition, clock, or member, or the special faults all or none."]]
+
    ["-w" "--workload NAME" "What workload should we run?"
     :parse-fn keyword
-    :validate [workloads (cli/one-of workloads)]]])
+    :validate [workloads (cli/one-of workloads)]]
+
+   [nil "--max-txn-length NUM" "Maximum number of operations in a transaction."
+    :default  4
+    :parse-fn parse-long
+    :validate [pos? "Must be a positive integer"]]
+
+   [nil "--max-writes-per-key NUM" "Maximum number of writes to any given key."
+    :default  256
+    :parse-fn parse-long
+    :validate [pos? "Must be a positive integer."]]
+   ])
 
 (defn cosmosdb-test
   "Given an options map from the command line runner (e.g. :nodes, :ssh,
   :concurrency, ...), constructs a test map."
   [opts]
-  (let [host               (:host opts)
-        key                (:key opts)
-        consistency-level  (get consistency-levels (:consistency opts))
-        workload-name      (:workload opts)
-        workload           ((workloads workload-name) opts)]
-  (merge tests/noop-test
-         opts
-         {:name             (str "cosmos db consistency level=" (:consistency opts) " ")
-          :os               debian/os
-          :db               (db/db opts)
-          :client           (Client. nil nil nil host key consistency-level)
-          :generator        nil
-          :pure-generators  true
-          })
-  ))
+  (let [workload-name (:workload opts)
+        workload      ((workloads workload-name) opts)
+        db            (db/db opts)
+        nemesis       (nemesis/nemesis-package
+                        {:db        db
+                         :nodes     (:nodes opts)
+                         :faults    (:nemesis opts)
+                         :partition {:targets [:primaries]}
+                         :pause     {:targets [nil :one :primaries :majority :all]}
+                         :kill      {:targets [nil :one :primaries :majority :all]}
+                         :interval  (:nemesis-interval opts)})]
+    (merge tests/noop-test
+           opts
+           {:name "cosmos db"
+            :os   debian/os
+            :db   db
+            :checker (checker/compose
+                       {:perf       (checker/perf
+                                      {:nemeses (:perf nemesis)})
+                        :clock      (checker/clock-plot)
+                        :stats      (checker/stats)
+                        :exceptions (checker/unhandled-exceptions)
+                        :workload   (:checker workload)})
+            :client    (:client workload)
+            ;:nemesis   (:nemesis nemesis)
+            :nemesis nil
+            :generator (gen/phases
+                         (->> (:generator workload)
+                              (gen/stagger (/ (:rate opts)))
+                              (gen/nemesis (:generator nemesis))
+                              (gen/time-limit (:time-limit opts))))})))
+
 
 (def all-workloads
   "A collection of workloads we run by default."
