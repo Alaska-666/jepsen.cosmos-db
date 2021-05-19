@@ -85,7 +85,9 @@
   "Find a object by ID"
   [^CosmosContainer container id]
   ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
-  (.getValues (.getItem (.readItem container id (PartitionKey. id) (. MyList class))))
+  (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (.class MyList)))]
+    (.getValues item)
+    )
   )
 
 (defn create-empty-item
@@ -104,7 +106,7 @@
   ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
   ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Arrays.asList(values)), new PartitionKey(id), cosmosItemRequestOptions);
   (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
-        item (.createItem container (MyList. id (.asList (. Arrays) values)) (PartitionKey. id) cosmosItemRequestOptions)]
+        item (.createItem container (MyList. id (.asList Arrays values)) (PartitionKey. id) cosmosItemRequestOptions)]
     (info :item     (.getItem item))
           :duration (.getDuration item)
     )
@@ -115,7 +117,7 @@
   ;MyList list = container.readItem(id, new PartitionKey(id), MyList.class).getItem();
   ;list.getValues().add(newValue);
   ;CosmosItemResponse<MyList> item = container.upsertItem(list);
-  (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (. MyList class)))]
+  (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (.class MyList)))]
     (.add (.getValues item) newValue)
     (.upsertItem container item)
     )
