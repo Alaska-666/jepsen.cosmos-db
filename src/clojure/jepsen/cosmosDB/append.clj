@@ -67,6 +67,7 @@
     (try
       (if (not (nil? container)) (.delete container))
       (if (not (nil? database))  (.delete database))
+      (.close conn)
       (catch CosmosException e nil)
       ))
   )
