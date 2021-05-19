@@ -16,7 +16,7 @@
                                     PartitionKey
                                     ThroughputProperties)
            (java.util Collections Arrays)
-           (utils MyList)))
+           (ru.mipt.bit.utils MyList)))
 
 
 (defn ^CosmosClient build-client

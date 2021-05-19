@@ -1,4 +1,4 @@
-package utils;
+package ru.mipt.bit.utils;
 
 import java.util.List;
 
