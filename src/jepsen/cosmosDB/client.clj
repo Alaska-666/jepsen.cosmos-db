@@ -3,8 +3,7 @@
   (:require [clojure.tools.logging :refer :all]
             [clojure [string :as str]
              [pprint :refer [pprint]]]
-            [jepsen [client :as client]]
-            [jepsen.cosmosDB [MyList :as MyList]])
+            [jepsen [client :as client]])
   (:import (com.azure.cosmos CosmosClientBuilder
                              CosmosClient
                              ConsistencyLevel
@@ -16,8 +15,8 @@
                                     CosmosItemRequestOptions
                                     PartitionKey
                                     ThroughputProperties)
-           (jepsen.cosmosDB MyList)
-           (java.util Collections Arrays)))
+           (java.util Collections Arrays)
+           (utils MyList)))
 
 
 (defn ^CosmosClient build-client
@@ -82,11 +81,11 @@
   )
 
 
-(defn ^MyList read-item
+(defn read-item
   "Find a object by ID"
   [^CosmosContainer container id]
   ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
-  (.getItem (.readItem container id (PartitionKey. id) (. MyList class)))
+  (.getValues (.getItem (.readItem container id (PartitionKey. id) (. MyList class))))
   )
 
 (defn create-empty-item
@@ -105,7 +104,7 @@
   ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
   ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Arrays.asList(values)), new PartitionKey(id), cosmosItemRequestOptions);
   (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
-        item (.createItem container (MyList. id (.asList (. Arrays ) values)) (PartitionKey. id) cosmosItemRequestOptions)]
+        item (.createItem container (MyList. id (.asList (. Arrays) values)) (PartitionKey. id) cosmosItemRequestOptions)]
     (info :item     (.getItem item))
           :duration (.getDuration item)
     )

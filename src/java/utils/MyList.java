@@ -1,10 +1,10 @@
-package jepsen.cosmosDB;
+package utils;
 
 import java.util.List;
 
 public class MyList {
-    String id;
-    List<Integer> values;
+    private String id;
+    private List<Integer> values;
 
     public MyList(String id, List<Integer> values) {
         this.id = id;
