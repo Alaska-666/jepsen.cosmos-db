@@ -93,6 +93,7 @@
     (merge tests/noop-test
            opts
            {:name "cosmos db"
+            :pure-generators true
             :os   debian/os
             :db   db
             :checker (checker/compose
