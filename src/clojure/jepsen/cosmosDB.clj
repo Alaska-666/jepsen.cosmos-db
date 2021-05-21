@@ -59,6 +59,11 @@
     :parse-fn keyword
     :validate [workloads (cli/one-of workloads)]]
 
+   ["-r" "--rate HZ" "Approximate number of requests per second, total"
+    :default 1000
+    :parse-fn read-string
+    :validate [#(and (number? %) (pos? %)) "Must be a positive number"]]
+
    [nil "--max-txn-length NUM" "Maximum number of operations in a transaction."
     :default  4
     :parse-fn parse-long
