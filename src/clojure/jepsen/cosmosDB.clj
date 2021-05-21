@@ -105,7 +105,6 @@
                         :workload   (:checker workload)})
             :client    (:client workload)
             ;:nemesis   (:nemesis nemesis)
-            :nemesis nil
             :generator (gen/phases
                          (->> (:generator workload)
                               (gen/stagger (/ (:rate opts)))
