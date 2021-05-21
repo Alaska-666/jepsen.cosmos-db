@@ -15,8 +15,7 @@
                                     CosmosItemRequestOptions
                                     PartitionKey
                                     ThroughputProperties)
-           (java.util Collections Arrays)
-           (ru.mipt.bit.utils MyList)))
+           (java.util Collections Arrays)))
 
 
 (defn ^CosmosClient build-client
@@ -81,44 +80,41 @@
   )
 
 
-(defn read-item
+(defn read-object
   "Find a object by ID"
   [^CosmosContainer container id]
   ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
-  (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (.class MyList)))]
-    (.getValues item)
-    )
+  (.getItem (.readItem container id (PartitionKey. id) (.class Object)))
   )
 
-(defn create-empty-item
+(defn create-object
   [^CosmosContainer container id]
   ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
-  ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Collections.emptyList()), new PartitionKey(id), cosmosItemRequestOptions);
+  ;CosmosItemResponse<Object> item = container.createItem(new Object(id, Collections.emptyList()), new PartitionKey(id), cosmosItemRequestOptions);
   (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
-        item (.createItem container (MyList. id (. Collections emptyList)) (PartitionKey. id) cosmosItemRequestOptions)]
+        item (.createItem container (Object.) (PartitionKey. id) cosmosItemRequestOptions)]
     (info :item     (.getItem item))
           :duration (.getDuration item)
     )
   )
 
-(defn create-item
-  [^CosmosContainer container id values]
-  ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
-  ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Arrays.asList(values)), new PartitionKey(id), cosmosItemRequestOptions);
-  (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
-        item (.createItem container (MyList. id (.asList Arrays values)) (PartitionKey. id) cosmosItemRequestOptions)]
-    (info :item     (.getItem item))
-          :duration (.getDuration item)
-    )
-  )
+;(defn create-item
+;  [^CosmosContainer container id values]
+;  ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
+;  ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Arrays.asList(values)), new PartitionKey(id), cosmosItemRequestOptions);
+;  (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
+;        item (.createItem container (MyList. id (.asList Arrays values)) (PartitionKey. id) cosmosItemRequestOptions)]
+;    (info :item     (.getItem item))
+;          :duration (.getDuration item)
+;    )
+;  )
 
-(defn upsert-item
+(defn upsert-object
   [^CosmosContainer container id newValue]
-  ;MyList list = container.readItem(id, new PartitionKey(id), MyList.class).getItem();
+  ;Object list = container.readItem(id, new PartitionKey(id), Object.class).getItem();
   ;list.getValues().add(newValue);
-  ;CosmosItemResponse<MyList> item = container.upsertItem(list);
-  (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (.class MyList)))]
-    (.add (.getValues item) newValue)
+  ;CosmosItemResponse<Object> item = container.upsertItem(list);
+  (let [^Object item (.getItem (.readItem container id (PartitionKey. id) (.class Object)))]
     (.upsertItem container item)
     )
   )

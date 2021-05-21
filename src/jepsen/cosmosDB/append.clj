@@ -19,8 +19,8 @@
   "Applies a transactional micro-operation to a connection."
   [test container [f k v :as mop]]
   (case f
-    :r      [f k (vec (:value (c/read-item container k)))]
-    :append (let [res  (c/upsert-item container k {:value v})]
+    :r      [f k (vec (:value (c/read-object container k)))]
+    :append (let [res  (c/upsert-object container k {:value v})]
               (info :res res)
               mop))
   )
