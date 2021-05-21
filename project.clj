@@ -7,4 +7,6 @@
                  [jepsen "0.2.1-SNAPSHOT"]
                  [com.azure/azure-cosmos "4.8.0"]]
   :jvm-opts ["-Djava.awt.headless=true"]
+  :java-source-paths ["src/java/"]
+  :source-paths      ["src/clojure"]
   :repl-options {:init-ns jepsen.cosmosDB})
