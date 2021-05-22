@@ -47,7 +47,6 @@
   (setup! [this test])
 
   (invoke! [this test op]
-    (pprint test)
     (c/with-errors op
        (timeout 5000 (assoc op :type :info, :error :timeout)
           (let [txn       (:value op)
