@@ -91,7 +91,7 @@
 (defn ^MyList get-item
   [^CosmosContainer container id]
   (let [id (.toString id)]
-    (.getItem (.readItem container id (PartitionKey. id) (.getClass MyList))))
+    (.getItem (.readItem container id (PartitionKey. id) (MyList))))
   )
 
 (defn create-empty-item
