@@ -22,8 +22,7 @@
              (catch RetryWithException e#
                (condp re-find (.getMessage e#)
                  #"Resource with specified id, name, or unique index already exists"
-                 nil
-
+                 (info node "Database already exists.")
                  (throw e#)))
              )
         (.close client)))
