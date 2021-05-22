@@ -26,7 +26,7 @@
   (case f
     :r      [f k (vec (:value (c/read-item container k)))]
     :append (let [res  (c/upsert-item container k {:value v})]
-              (info :res res)
+              ;(info :res res)
               mop)
     (pprint "jopa")
     )
