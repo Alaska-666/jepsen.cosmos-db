@@ -6,6 +6,7 @@
             [jepsen [client :as client]
                     [util :as util :refer [timeout]]
                     [independent :as independent]]
+            [dom-top.core :refer [with-retry]]
             [slingshot.slingshot :refer [try+]]
             [jepsen.tests.cycle.append :as list-append]
             [jepsen.cosmosDB [client :as c]])
@@ -28,48 +29,48 @@
     :append (let [res  (c/upsert-item container k {:value v})]
               ;(info :res res)
               mop)
-    (pprint "jopa")
     )
   )
 
-(defrecord Client [conn database container account-host account-key consistency-level]
+(defrecord Client [conn account-host account-key consistency-level]
   client/Client
   (open! [this test node]
-    (let [conn      (c/build-client node account-host account-key consistency-level)
-          database  (c/createDatabaseIfNotExists conn databaseName)]
-      (assoc this
-        :conn       conn
-        :database   database
-        :container  (c/createContainerIfNotExists database containerName throughput partitionKeyPath))
-      )
-    )
+    (assoc this :conn (c/build-client node account-host account-key consistency-level)))
 
-  (setup! [this test])
+  (setup! [this test]
+    (with-retry [tries 5]
+      (let [db   (c/db conn databaseName)]
+        (let [container (c/create-container! db containerName throughput partitionKeyPath)]
+          (info "Container created")))
+
+      (catch CosmosException e
+        (if (pos? tries)
+          (do (info (.getMessage e))
+              (Thread/sleep 5000)
+              (retry (dec tries)))
+          (throw e)))))
 
   (invoke! [this test op]
     (c/with-errors op
        (timeout 5000 (assoc op :type :info, :error :timeout)
           (let [txn       (:value op)
+                db        (c/db conn databaseName)
+                container (c/container db containerName)
                 txn'      (mapv (partial mop! test container) txn)]
-            (pprint txn')
             (assoc op :type :ok, :value txn')))))
 
   (teardown! [this test])
 
   (close! [_ test]
     (try
-      (if (not (nil? container)) (.delete container))
-      (if (not (nil? database))  (.delete database))
+      (let [db (c/db conn databaseName)
+            container (c/container db containerName)
+            (if (not (nil? container)) (.delete container))
+            (if (not (nil? db))  (.delete db))
+            ])
       (.close conn)
       (catch CosmosException e nil)
       )))
-
-(def consistency-levels
-  {:eventual  (ConsistencyLevel/EVENTUAL)
-   :session   (ConsistencyLevel/SESSION)
-   :staleness (ConsistencyLevel/BOUNDED_STALENESS)
-   :strong    (ConsistencyLevel/STRONG)
-   :prefix    (ConsistencyLevel/CONSISTENT_PREFIX)})
 
 (defn workload
   "A generator, client, and checker for a list-append test.
@@ -78,7 +79,7 @@
   [opts]
   (let [host               (:host opts)
         key                (:key opts)
-        consistency-level  (get consistency-levels (:consistency opts))]
+        consistency-level  (get c/consistency-levels (:consistency opts))]
     (assoc (list-append/test {:key-count          10
                               :key-dist           :exponential
                               :max-txn-length     (:max-txn-length opts 4)

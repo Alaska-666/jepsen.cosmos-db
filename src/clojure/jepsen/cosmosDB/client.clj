@@ -33,6 +33,13 @@
         (.buildClient))
     ))
 
+(def consistency-levels
+  {:eventual  (ConsistencyLevel/EVENTUAL)
+   :session   (ConsistencyLevel/SESSION)
+   :staleness (ConsistencyLevel/BOUNDED_STALENESS)
+   :strong    (ConsistencyLevel/STRONG)
+   :prefix    (ConsistencyLevel/CONSISTENT_PREFIX)})
+
 (defn ^CosmosAsyncClient build-async-client
   "???"
   [node ^String host ^String acc-key ^ConsistencyLevel level]
@@ -45,7 +52,7 @@
         (.buildAsyncClient))
     ))
 
-(defn ^CosmosDatabase createDatabaseIfNotExists
+(defn ^CosmosDatabase create-database!
   [^CosmosClient client ^String databaseName]
   ;CosmosDatabaseResponse databaseResponse = client.createDatabaseIfNotExists(databaseName);
   ;database = client.getDatabase(databaseResponse.getProperties().getId());
@@ -54,7 +61,16 @@
     )
   )
 
-(defn ^CosmosContainer createContainerIfNotExists
+(defn ^CosmosDatabase db
+  [^CosmosClient client ^String databaseName]
+  (try
+    (.getDatabase client databaseName)
+
+    (catch CosmosException e
+      nil))
+  )
+
+(defn ^CosmosContainer create-container!
   [^CosmosDatabase database ^String containerName throughput ^String partitionKeyPath]
   ;CosmosContainerProperties containerProperties =
   ;new CosmosContainerProperties(containerName, "/lastName");
@@ -66,6 +82,16 @@
         throughputProperties (. ThroughputProperties createManualThroughput throughput)
         containerResponse (.createContainerIfNotExists database containerProperties throughputProperties)]
     (.getContainer database (.getId (.getProperties containerResponse)))
+    )
+  )
+
+(defn ^CosmosContainer container
+  [^CosmosDatabase database ^String name]
+  (try
+    (.getContainer database name)
+
+    (catch CosmosException e
+      nil)
     )
   )
 
