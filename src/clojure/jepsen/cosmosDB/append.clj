@@ -18,13 +18,7 @@
 (defn apply-mop!
   "Applies a transactional micro-operation to a connection."
   [test container [f k v :as mop]]
-  (pprint "apply-mop")
-  (pprint test)
-  (pprint container)
-  (pprint f)
-  (pprint k)
-  (pprint v)
-  (pprint mop)
+  (pprint "in apply-mop!")
   (case f
     :r      [f k (vec (:value (c/read-item container k)))]
     :append (let [res  (c/upsert-item container k {:value v})]
@@ -52,23 +46,21 @@
     (let [txn (:value op)]
       (c/with-errors op
          (timeout 5000 (assoc op :type :info, :error :timeout)
-            (let [txn' ((apply-mop! test container (first txn))
-                         ;if (and (<= (count txn) 1) (not (:singleton-txns test)))
+            (let [txn' (if (and (<= (count txn) 1) (not (:singleton-txns test)))
                ; We can run without a transaction
-               ;[(apply-mop! test container (first txn))]
+               (apply-mop! test container (first txn))
 
 
                ; We need a transaction
-
-               ;(let [db (c/db conn db-name test)]
-               ;  (with-open [session (c/start-session conn)]
-               ;    (let [opts (txn-options test (:value op))
+               (pprint (str "ELSE" txn))
+               ;(with-open [session (c/start-session conn)]
+               ;    (let [opts (:value op)
                ;          body (c/txn
-               ;                 ;(info :txn-begins)
+               ;                 (info :txn-begins)
                ;                 (mapv (partial apply-mop!
                ;                                test db session)
                ;                       (:value op)))]
-               ;      (.withTransaction session body opts))))
+               ;      (.withTransaction session body opts)))
                )]
               (assoc op :type :ok, :value txn'))))))
 

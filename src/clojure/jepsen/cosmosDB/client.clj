@@ -72,6 +72,7 @@
   "Takes an operation and a body; evals body, turning known errors into :fail
   or :info ops."
   [op & body]
+  (pprint (str "with-errors" body))
   `(try ~@body
         (catch ExceptionInfo e#
           (warn e# "Caught ex-info")
@@ -84,6 +85,8 @@
             (throw e#)))
         )
   )
+
+(defn )
 
 
 (defn read-item
