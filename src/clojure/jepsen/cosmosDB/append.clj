@@ -22,11 +22,14 @@
   "Applies a transactional micro-operation to a connection."
   [test container [f k v :as mop]]
   (pprint "in mop!")
+  (pprint (str " f=" f " k=" k " v=" v))
   (case f
     :r      [f k (vec (:value (c/read-item container k)))]
     :append (let [res  (c/upsert-item container k {:value v})]
               (info :res res)
-              mop))
+              mop)
+    (pprint "jopa")
+    )
   )
 
 (defrecord Client [conn database container account-host account-key consistency-level]
@@ -43,33 +46,13 @@
 
   (setup! [this test])
 
-  ;(invoke! [this test op]
-  ;  (pprint test)
-  ;  (c/with-errors op
-  ;                 (timeout 5000 (assoc op :type :info, :error :timeout)
-  ;                          (let [txn       (:value op)
-  ;                                txn'      (mapv (partial mop! test container) txn)]
-  ;                            (assoc op :type :ok, :value txn')))))
-
-  (invoke! [_ test op]
-    (let [[k v] (:value op)]
-      (try+
-        (case (:f op)
-          :r (let [value (c/read-item container k)]
-                  (assoc op :type :ok, :value (independent/tuple k value)))
-
-          :append (do c/upsert-item container k {:value v}
-                      (assoc op :type :ok))
-          (assoc op :type :info, :value :jopa)
-          )
-        
-        (catch SocketTimeoutException e
-          (assoc op
-            :type  (if (= :read (:f op)) :fail :info)
-            :error :timeout))
-        )
-      )
-    )
+  (invoke! [this test op]
+    (pprint test)
+    (c/with-errors op
+       (timeout 5000 (assoc op :type :info, :error :timeout)
+          (let [txn       (:value op)
+                txn'      (mapv (partial mop! test container) txn)]
+            (assoc op :type :ok, :value txn')))))
 
   (teardown! [this test])
 

@@ -143,13 +143,15 @@
   (try
     (let [^MyList item (get-item container id)]
       (.add (.getValues item) newValue)
-      (.upsertItem container item))
+      (.upsertItem container item)
+      (.getValues item))
     (catch NotFoundException e#
       (info :exception (.getMessage e#))
       (create-empty-item container id)
       (let [^MyList item (get-item container id)]
         (.add (.getValues item) newValue)
-        (.upsertItem container item))
+        (.upsertItem container item)
+        (.getValues item))
       )
     )
   )
