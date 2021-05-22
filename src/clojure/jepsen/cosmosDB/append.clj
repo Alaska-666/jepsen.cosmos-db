@@ -20,8 +20,6 @@
 (defn mop!
   "Applies a transactional micro-operation to a connection."
   [test container [f k v :as mop]]
-  (pprint "in mop!")
-  (pprint (str " f=" f " k=" k " v=" v))
   (case f
     :r      [f k (vec (:value (c/read-item container k)))]
     :append (let [res  (c/upsert-item container k {:value v})]
