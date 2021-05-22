@@ -18,7 +18,7 @@
            (java.util Collections Arrays)
            (mipt.bit.utils MyList)
            (clojure.lang ExceptionInfo)
-           (com.azure.cosmos.implementation NotFoundException RetryWithException)))
+           (com.azure.cosmos.implementation NotFoundException RetryWithException ConflictException)))
 
 
 (defn ^CosmosClient build-client
@@ -110,6 +110,13 @@
             (assoc ~op :type :fail, :error :conflicting-request)
 
             (throw e#)))
+        (catch ConflictException e#
+          (condp re-find (.getMessage e#)
+            #"Resource with specified id or name already exists"
+            (assoc ~op :type :fail, :error :creation-conflict)
+
+            (throw e#))
+          )
         )
   )
 
@@ -123,14 +130,17 @@
   [^CosmosContainer container id]
   ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
   ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Collections.emptyList()), new PartitionKey(id), cosmosItemRequestOptions);
-  (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
-        id (.toString id)
-        item (.createItem container (MyList. id (. Collections emptyList)) (PartitionKey. id) cosmosItemRequestOptions)]
-    (info
-      :create   true
-      :item     (.getItem item)
-      :duration (.getDuration item)
+  (try
+    (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
+          id (.toString id)
+          item (.createItem container (MyList. id (. Collections emptyList)) (PartitionKey. id) cosmosItemRequestOptions)]
+      (info
+        :create   true
+        :item     (.getItem item)
+        :duration (.getDuration item)
+        )
       )
+    (catch ConflictException e nil)
     )
   )
 
