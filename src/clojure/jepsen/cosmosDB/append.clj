@@ -60,8 +60,11 @@
           :r (let [value (c/read-item container k)]
                   (assoc op :type :ok, :value (independent/tuple k value)))
 
-          :append (do c/upsert-item container k {:value v})
-                     (assoc op :type :ok))
+          :append (do c/upsert-item container k {:value v}
+                      (assoc op :type :ok))
+          (pprint "aaaaa")
+          )
+
 
         (catch SocketTimeoutException e
           (assoc op
