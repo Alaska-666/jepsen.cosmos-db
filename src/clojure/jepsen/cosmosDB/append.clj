@@ -44,10 +44,10 @@
   (invoke! [this test op]
     (pprint test)
     (c/with-errors op
-                   (let [txn       (:value op)
-                         txn'      (mapv (partial mop! test container) txn)]
-                     (assoc op :type :ok, :value txn')))
-    )
+                   (timeout 5000 (assoc op :type :info, :error :timeout)
+                            (let [txn       (:value op)
+                                  txn'      (mapv (partial mop! test container) txn)]
+                              (assoc op :type :ok, :value txn')))))
 
   (teardown! [this test])
 
@@ -57,8 +57,7 @@
       (if (not (nil? database))  (.delete database))
       (.close conn)
       (catch CosmosException e nil)
-      ))
-  )
+      )))
 
 (def consistency-levels
   {:eventual  (ConsistencyLevel/EVENTUAL)

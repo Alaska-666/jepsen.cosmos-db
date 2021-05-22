@@ -29,4 +29,9 @@ public class MyList {
     public void setValues(List<Integer> values) {
         this.values = values;
     }
+
+    @Override
+    public String toString() {
+        return "MyList{" + "id='" + id + '\'' + ", values=" + values + '}';
+    }
 }

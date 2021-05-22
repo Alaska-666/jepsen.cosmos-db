@@ -17,7 +17,8 @@
                                     ThroughputProperties)
            (java.util Collections Arrays)
            (mipt.bit.utils MyList)
-           (clojure.lang ExceptionInfo)))
+           (clojure.lang ExceptionInfo)
+           (com.azure.cosmos.implementation NotFoundException)))
 
 
 (defn ^CosmosClient build-client
@@ -72,13 +73,14 @@
   "Takes an operation and a body; evals body, turning known errors into :fail
   or :info ops."
   [op & body]
-  (pprint (str "with-errors" body))
   `(try ~@body
         (catch ExceptionInfo e#
+          (info :with-errors (.getMessage e#))
           (warn e# "Caught ex-info")
           (assoc ~op :type :info, :error [:ex-info (.getMessage e#)]))
 
         (catch CosmosException e#
+          (info :with-errors (.getMessage e#))
           (condp re-find (.getMessage e#)
             #""
             (assoc ~op :type :fail, :error [:cosmos-exception (.getMessage e#)])
@@ -86,15 +88,9 @@
         )
   )
 
-(defn read-item
-  "Find a object by ID"
+(defn get-item
   [^CosmosContainer container id]
-  ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
-  (pprint "read item")
-  (pprint (str "id= " id))
-  (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (.class MyList)))]
-    (.getValues item)
-    )
+  (.getItem (.readItem container id (PartitionKey. id) (.class MyList)))
   )
 
 (defn create-empty-item
@@ -104,9 +100,28 @@
   (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
         item (.createItem container (MyList. id (. Collections emptyList)) (PartitionKey. id) cosmosItemRequestOptions)]
     (info :item     (.getItem item))
-    :duration (.getDuration item)
+          :duration (.getDuration item)
     )
   )
+
+(defn read-item
+  "Find a object by ID"
+  [^CosmosContainer container id]
+  ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
+  (pprint "read item")
+  (try
+    (let [^MyList item (get-item container id)]
+      (.getValues item))
+    (catch NotFoundException e#
+      (info :exception (.getMessage e#))
+      (create-empty-item container id)
+      (let [^MyList item (get-item container id)]
+        (.getValues item)
+        )
+      )
+    )
+  )
+
 
 (defn create-item
   [^CosmosContainer container id values]
@@ -125,11 +140,17 @@
   ;list.getValues().add(newValue);
   ;CosmosItemResponse<MyList> item = container.upsertItem(list);
   (pprint "upsert item")
-  (pprint (str "id= " id))
-  (pprint (str "new value =" newValue))
-  (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (.class MyList)))]
-    (.add (.getValues item) newValue)
-    (.upsertItem container item)
+  (try
+    (let [^MyList item (get-item container id)]
+      (.add (.getValues item) newValue)
+      (.upsertItem container item))
+    (catch NotFoundException e#
+      (info :exception (.getMessage e#))
+      (create-empty-item container id)
+      (let [^MyList item (get-item container id)]
+        (.add (.getValues item) newValue)
+        (.upsertItem container item))
+      )
     )
   )
 
