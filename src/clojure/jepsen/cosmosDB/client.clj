@@ -90,7 +90,7 @@
 
 (defn get-item
   [^CosmosContainer container id]
-  (.getItem (.readItem container (.toString id) (PartitionKey. id) (.class MyList)))
+  (.getItem (.readItem container (.toString id) (PartitionKey. id) (class MyList)))
   )
 
 (defn create-empty-item
