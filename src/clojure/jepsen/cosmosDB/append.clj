@@ -96,7 +96,6 @@
   FIXME: fix consistency-models and other options !!!!!!
   "
   [opts]
-  (pprint opts)
   (let [host               (:host opts)
         key                (:key opts)
         consistency-level  (get consistency-levels (:consistency opts))]
