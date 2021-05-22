@@ -86,9 +86,6 @@
         )
   )
 
-(defn )
-
-
 (defn read-item
   "Find a object by ID"
   [^CosmosContainer container id]
