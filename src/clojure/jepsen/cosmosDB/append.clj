@@ -4,11 +4,14 @@
             [clojure [string :as str]
                      [pprint :refer [pprint]]]
             [jepsen [client :as client]
-                    [util :as util :refer [timeout]]]
+                    [util :as util :refer [timeout]]
+                    [independent :as independent]]
+            [slingshot.slingshot :refer [try+]]
             [jepsen.tests.cycle.append :as list-append]
             [jepsen.cosmosDB [client :as c]])
   (:import (com.azure.cosmos CosmosException
-                             ConsistencyLevel)))
+                             ConsistencyLevel)
+           (java.net SocketTimeoutException)))
 
 (def databaseName      "AzureJepsenTestDB")
 (def containerName     "JepsenTestContainer")
@@ -41,13 +44,32 @@
 
   (setup! [this test])
 
-  (invoke! [this test op]
+  ;(invoke! [this test op]
+  ;  (pprint test)
+  ;  (c/with-errors op
+  ;                 (timeout 5000 (assoc op :type :info, :error :timeout)
+  ;                          (let [txn       (:value op)
+  ;                                txn'      (mapv (partial mop! test container) txn)]
+  ;                            (assoc op :type :ok, :value txn')))))
+
+  (invoke! [_ test op]
     (pprint test)
-    (c/with-errors op
-                   (timeout 5000 (assoc op :type :info, :error :timeout)
-                            (let [txn       (:value op)
-                                  txn'      (mapv (partial mop! test container) txn)]
-                              (assoc op :type :ok, :value txn')))))
+    (let [[k v] (:value op)]
+      (try+
+        (case (:f op)
+          :r (let [value (c/read-item container k)]
+                  (assoc op :type :ok, :value (independent/tuple k value)))
+
+          :append (do c/upsert-item container k {:value v})
+                     (assoc op :type :ok))
+          )
+
+        (catch SocketTimeoutException e
+          (assoc op
+            :type  (if (= :read (:f op)) :fail :info)
+            :error :timeout))
+      )
+    )
 
   (teardown! [this test])
 
