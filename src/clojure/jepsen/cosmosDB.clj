@@ -57,7 +57,7 @@
     :validate [workloads (cli/one-of workloads)]]
 
    ["-r" "--rate HZ" "Approximate number of requests per second, total"
-    :default 1000
+    :default 100
     :parse-fn read-string
     :validate [#(and (number? %) (pos? %)) "Must be a positive number"]]
 
