@@ -47,11 +47,6 @@
    [nil "--host STRING" "Azure Cosmos DB account host."
     :default "https://localhost:8081"]
 
-   [nil "--nemesis FAULTS" "A comma-separated list of nemesis faults to enable"
-    :parse-fn parse-nemesis-spec
-    :validate [(partial every? #{:pause :kill :partition :clock :member})
-               "Faults must be pause, kill, partition, clock, or member, or the special faults all or none."]]
-
    ["-w" "--workload NAME" "What workload should we run?"
     :parse-fn keyword
     :validate [workloads (cli/one-of workloads)]]
