@@ -106,7 +106,7 @@
 
         (catch RetryWithException e#
           (condp re-find (.getMessage e#)
-            #"Conflicting request to resource has been attempted"
+            #"Conflicting request to resource has been attempted. Retry to avoid conflicts."
             (assoc ~op :type :fail, :error :conflicting-request)
 
             (throw e#)))
