@@ -50,11 +50,13 @@
     (let [txn (:value op)]
       (c/with-errors op
          (timeout 5000 (assoc op :type :info, :error :timeout)
-            (let [txn' (if (and (<= (count txn) 1) (not (:singleton-txns test)))
+            (let [txn' (
+                         ;if (and (<= (count txn) 1) (not (:singleton-txns test)))
                ; We can run without a transaction
                [(apply-mop! test container (first txn))]
 
                ; We need a transaction
+
                ;(let [db (c/db conn db-name test)]
                ;  (with-open [session (c/start-session conn)]
                ;    (let [opts (txn-options test (:value op))

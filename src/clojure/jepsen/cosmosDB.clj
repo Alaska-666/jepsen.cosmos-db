@@ -32,7 +32,7 @@
 (def cli-opts
   "Additional command line options."
   [["-c" "--consistency LEVEL" "What level of consistency we should set: eventual, session, staleness, strong, prefix."
-    :default :strong
+    :default :session
     :parse-fn keyword
     :validate [#{:eventual
                  :session
