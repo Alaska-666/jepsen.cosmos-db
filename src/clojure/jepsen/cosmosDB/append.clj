@@ -18,6 +18,7 @@
 (defn apply-mop!
   "Applies a transactional micro-operation to a connection."
   [test container [f k v :as mop]]
+  (pprint "apply-mop")
   (pprint test)
   (pprint container)
   (pprint f)
@@ -46,14 +47,16 @@
   (setup! [this test])
 
   (invoke! [this test op]
+    (pprint "test")
     (pprint test)
     (let [txn (:value op)]
       (c/with-errors op
          (timeout 5000 (assoc op :type :info, :error :timeout)
-            (let [txn' (
+            (let [txn' ((apply-mop! test container (first txn))
                          ;if (and (<= (count txn) 1) (not (:singleton-txns test)))
                ; We can run without a transaction
-               [(apply-mop! test container (first txn))]
+               ;[(apply-mop! test container (first txn))]
+
 
                ; We need a transaction
 
