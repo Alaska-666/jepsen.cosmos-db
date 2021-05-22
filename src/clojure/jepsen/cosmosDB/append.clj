@@ -64,10 +64,10 @@
   (close! [_ test]
     (try
       (let [db (c/db conn databaseName)
-            container (c/container db containerName)
+            container (c/container db containerName)]
             (if (not (nil? container)) (.delete container))
             (if (not (nil? db))  (.delete db))
-            ])
+            )
       (.close conn)
       (catch CosmosException e nil)
       )))
