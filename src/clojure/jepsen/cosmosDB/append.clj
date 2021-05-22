@@ -51,6 +51,7 @@
        (timeout 5000 (assoc op :type :info, :error :timeout)
           (let [txn       (:value op)
                 txn'      (mapv (partial mop! test container) txn)]
+            (pprint txn')
             (assoc op :type :ok, :value txn')))))
 
   (teardown! [this test])
