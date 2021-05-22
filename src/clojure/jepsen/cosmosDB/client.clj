@@ -16,7 +16,8 @@
                                     PartitionKey
                                     ThroughputProperties)
            (java.util Collections Arrays)
-           (mipt.bit.utils MyList)))
+           (mipt.bit.utils MyList)
+           (clojure.lang ExceptionInfo)))
 
 
 (defn ^CosmosClient build-client
@@ -72,10 +73,14 @@
   or :info ops."
   [op & body]
   `(try ~@body
+        (catch ExceptionInfo e#
+          (warn e# "Caught ex-info")
+          (assoc ~op :type :info, :error [:ex-info (.getMessage e#)]))
+
         (catch CosmosException e#
           (condp re-find (.getMessage e#)
-            ; This... seems like a bug too
-            (assoc ~op :type :fail, :error [:ex-info (.getMessage e#)])
+            #""
+            (assoc ~op :type :fail, :error [:cosmos-exception (.getMessage e#)])
             (throw e#)))
         )
   )
@@ -85,6 +90,8 @@
   "Find a object by ID"
   [^CosmosContainer container id]
   ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
+  (pprint "read item")
+  (pprint (str "id= " id))
   (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (.class MyList)))]
     (.getValues item)
     )
@@ -117,6 +124,9 @@
   ;MyList list = container.readItem(id, new PartitionKey(id), MyList.class).getItem();
   ;list.getValues().add(newValue);
   ;CosmosItemResponse<MyList> item = container.upsertItem(list);
+  (pprint "upsert item")
+  (pprint (str "id= " id))
+  (pprint (str "new value =" newValue))
   (let [^MyList item (.getItem (.readItem container id (PartitionKey. id) (.class MyList)))]
     (.add (.getValues item) newValue)
     (.upsertItem container item)
