@@ -62,12 +62,12 @@
 
           :append (do c/upsert-item container k {:value v})
                      (assoc op :type :ok))
-          )
 
         (catch SocketTimeoutException e
           (assoc op
             :type  (if (= :read (:f op)) :fail :info)
             :error :timeout))
+        )
       )
     )
 
