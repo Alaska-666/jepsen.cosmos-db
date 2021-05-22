@@ -61,6 +61,16 @@
     :parse-fn read-string
     :validate [#(and (number? %) (pos? %)) "Must be a positive number"]]
 
+   [[nil "--nemesis FAULTS" "A comma-separated list of nemesis faults to enable"
+     :parse-fn parse-nemesis-spec
+     :validate [(partial every? #{:pause :kill :partition :clock :member})
+                "Faults must be pause, kill, partition, clock, or member, or the special faults all or none."]]
+
+   [nil "--nemesis-interval SECS" "Roughly how long between nemesis operations."
+    :default 2
+    :parse-fn read-string
+    :validate [pos? "Must be a positive integer."]]
+
    [nil "--max-txn-length NUM" "Maximum number of operations in a transaction."
     :default  4
     :parse-fn parse-long
@@ -101,7 +111,7 @@
                         :exceptions (checker/unhandled-exceptions)
                         :workload   (:checker workload)})
             :client    (:client workload)
-            ;:nemesis   (:nemesis nemesis)
+            :nemesis   (:nemesis nemesis)
             :generator (gen/phases
                          (->> (:generator workload)
                               (gen/stagger (/ (:rate opts)))
