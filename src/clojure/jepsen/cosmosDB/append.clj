@@ -19,6 +19,7 @@
   "Applies a transactional micro-operation to a connection."
   [test container [f k v :as mop]]
   (pprint "in apply-mop!")
+  (pprint mop)
   (case f
     :r      [f k (vec (:value (c/read-item container k)))]
     :append (let [res  (c/upsert-item container k {:value v})]
@@ -41,28 +42,14 @@
   (setup! [this test])
 
   (invoke! [this test op]
-    (pprint "test")
-    (pprint test)
+    (pprint (str "test" test))
     (let [txn (:value op)]
       (c/with-errors op
          (timeout 5000 (assoc op :type :info, :error :timeout)
-            (let [txn' (if (and (<= (count txn) 1) (not (:singleton-txns test)))
-               ; We can run without a transaction
-               (apply-mop! test container (first txn))
-
-
-               ; We need a transaction
-               (pprint (str "ELSE" txn))
-               ;(with-open [session (c/start-session conn)]
-               ;    (let [opts (:value op)
-               ;          body (c/txn
-               ;                 (info :txn-begins)
-               ;                 (mapv (partial apply-mop!
-               ;                                test db session)
-               ;                       (:value op)))]
-               ;      (.withTransaction session body opts)))
-               )]
-              (assoc op :type :ok, :value txn'))))))
+                  (for [x txn]
+                    (let [txn' (apply-mop! test container x)]
+                      (assoc op :type :ok, :value txn')))
+                  ))))
 
   (teardown! [this test])
 

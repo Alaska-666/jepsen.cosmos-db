@@ -47,9 +47,6 @@
    [nil "--host STRING" "Azure Cosmos DB account host."
     :default "https://localhost:8081"]
 
-   [nil "--singleton-txns" "If set, execute even single operations in a transactional context."
-    :default false]
-
    [nil "--nemesis FAULTS" "A comma-separated list of nemesis faults to enable"
     :parse-fn parse-nemesis-spec
     :validate [(partial every? #{:pause :kill :partition :clock :member})
