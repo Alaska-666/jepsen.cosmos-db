@@ -33,8 +33,6 @@
 (defrecord Client [conn account-host account-key consistency-level]
   client/Client
   (open! [this test node]
-    (pprint test)
-    (pprint node)
     (assoc this :conn (c/build-client node account-host account-key consistency-level)))
 
   (setup! [this test]
@@ -81,4 +79,4 @@
                               :max-txn-length     (:max-txn-length opts 4)
                               :max-writes-per-key (:max-writes-per-key opts)
                               :consistency-models [:strong-snapshot-isolation]})
-      :client (Client. nil nil nil host key consistency-level))))
+      :client (Client. nil host key consistency-level))))
