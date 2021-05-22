@@ -18,7 +18,7 @@
            (java.util Collections Arrays)
            (mipt.bit.utils MyList)
            (clojure.lang ExceptionInfo)
-           (com.azure.cosmos.implementation NotFoundException)))
+           (com.azure.cosmos.implementation NotFoundException RetryWithException)))
 
 
 (defn ^CosmosClient build-client
@@ -75,15 +75,14 @@
   [op & body]
   `(try ~@body
         (catch ExceptionInfo e#
-          (info :with-errors (.getMessage e#))
           (warn e# "Caught ex-info")
           (assoc ~op :type :info, :error [:ex-info (.getMessage e#)]))
 
-        (catch CosmosException e#
-          (info :with-errors (.getMessage e#))
+        (catch RetryWithException e#
           (condp re-find (.getMessage e#)
-            #""
-            (assoc ~op :type :fail, :error [:cosmos-exception (.getMessage e#)])
+            #"Conflicting request to resource has been attempted"
+            (assoc ~op :type :fail, :error :conflicting-request)
+
             (throw e#)))
         )
   )
@@ -113,12 +112,10 @@
   "Find a object by ID"
   [^CosmosContainer container id]
   ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
-  (pprint "read item")
   (try
     (let [^MyList item (get-item container id)]
       (.getValues item))
     (catch NotFoundException e#
-      (info :exception (.getMessage e#))
       (create-empty-item container id)
       (let [^MyList item (get-item container id)]
         (.getValues item)
@@ -134,8 +131,9 @@
   ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Arrays.asList(values)), new PartitionKey(id), cosmosItemRequestOptions);
   (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
         item (.createItem container (MyList. id (.asList Arrays values)) (PartitionKey. id) cosmosItemRequestOptions)]
-    (info :item     (.getItem item))
-    :duration (.getDuration item)
+    (info
+      :item     (.getItem item)
+      :duration (.getDuration item))
     )
   )
 
@@ -144,7 +142,6 @@
   ;MyList list = container.readItem(id, new PartitionKey(id), MyList.class).getItem();
   ;list.getValues().add(newValue);
   ;CosmosItemResponse<MyList> item = container.upsertItem(list);
-  (pprint "upsert item")
   (try
     (let [^MyList item (get-item container id)
           newValue (:value newValue)]
