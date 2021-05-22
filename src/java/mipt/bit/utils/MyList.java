@@ -4,9 +4,9 @@ import java.util.List;
 
 public class MyList {
     private String id;
-    private List<Integer> values;
+    private List<Long> values;
 
-    public MyList(String id, List<Integer> values) {
+    public MyList(String id, List<Long> values) {
         this.id = id;
         this.values = values;
     }
@@ -18,7 +18,7 @@ public class MyList {
         return id;
     }
 
-    public List<Integer> getValues() {
+    public List<Long> getValues() {
         return values;
     }
 
@@ -26,7 +26,7 @@ public class MyList {
         this.id = id;
     }
 
-    public void setValues(List<Integer> values) {
+    public void setValues(List<Long> values) {
         this.values = values;
     }
 
