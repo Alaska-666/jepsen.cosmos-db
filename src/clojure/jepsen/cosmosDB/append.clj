@@ -10,9 +10,7 @@
             [slingshot.slingshot :refer [try+]]
             [jepsen.tests.cycle.append :as list-append]
             [jepsen.cosmosDB [client :as c]])
-  (:import (com.azure.cosmos CosmosException
-                             ConsistencyLevel)
-           (java.net SocketTimeoutException)))
+  (:import (com.azure.cosmos CosmosException)))
 
 (def databaseName      "AzureJepsenTestDB")
 (def containerName     "JepsenTestContainer")
@@ -35,13 +33,15 @@
 (defrecord Client [conn account-host account-key consistency-level]
   client/Client
   (open! [this test node]
+    (pprint test)
+    (pprint node)
     (assoc this :conn (c/build-client node account-host account-key consistency-level)))
 
   (setup! [this test]
     (try
       (let [db (c/db conn databaseName)]
         (c/create-container! db containerName throughput partitionKeyPath))
-      
+
       (catch CosmosException e#
         (condp re-find (.getMessage e#)
           #"Resource with specified id, name, or unique index already exists"

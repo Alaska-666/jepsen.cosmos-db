@@ -2,8 +2,7 @@
   (:require [clojure.tools.logging :refer :all]
             [jepsen [db :as db]]
             [jepsen.cosmosDB [client :as c]])
-  (:import (com.azure.cosmos.implementation RetryWithException)
-           (com.azure.cosmos CosmosException)))
+  (:import (com.azure.cosmos CosmosException)))
 
 (def dir     "/opt/cosmosDB")
 (def logfile (str dir "/cosmosDB.log"))
@@ -11,7 +10,7 @@
 (def containerName     "JepsenTestContainer")
 
 (defn db
-  "???"
+  "Create and delete database"
   [opts]
   (reify db/DB
     (setup! [_ test node]
@@ -20,13 +19,13 @@
             key                (:key opts)
             consistency-level  (get c/consistency-levels (:consistency opts))
             client             (c/build-client node host key consistency-level)]
-        (try (c/create-database! client databaseName)
-             (catch CosmosException e#
-               (condp re-find (.getMessage e#)
-                 #"Resource with specified id, name, or unique index already exists"
-                 (info node "Database already exists.")
-                 (throw e#)))
-             )
+        (try
+          (c/create-database! client databaseName)
+          (catch CosmosException e#
+            (condp re-find (.getMessage e#)
+              #"Resource with specified id, name, or unique index already exists"
+              (info node "Database already exists.")
+              (throw e#))))
         (.close client)))
 
     (teardown! [_ test node]
