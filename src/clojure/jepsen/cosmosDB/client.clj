@@ -90,7 +90,8 @@
 
 (defn get-item
   [^CosmosContainer container id]
-  (.getItem (.readItem container (.toString id) (PartitionKey. id) (class MyList)))
+  (let [id (.toString id)]
+    (.getItem (.readItem container id (PartitionKey. id) (class MyList))))
   )
 
 (defn create-empty-item
@@ -98,6 +99,7 @@
   ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
   ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Collections.emptyList()), new PartitionKey(id), cosmosItemRequestOptions);
   (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
+        id (.toString id)
         item (.createItem container (MyList. id (. Collections emptyList)) (PartitionKey. id) cosmosItemRequestOptions)]
     (info :item     (.getItem item))
           :duration (.getDuration item)
