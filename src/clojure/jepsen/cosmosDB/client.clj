@@ -146,14 +146,16 @@
   ;CosmosItemResponse<MyList> item = container.upsertItem(list);
   (pprint "upsert item")
   (try
-    (let [^MyList item (get-item container id)]
+    (let [^MyList item (get-item container id)
+          newValue (:value newValue)]
       (.add (.getValues item) newValue)
       (.upsertItem container item)
       (.getValues item))
     (catch NotFoundException e#
       (info :exception (.getMessage e#))
       (create-empty-item container id)
-      (let [^MyList item (get-item container id)]
+      (let [^MyList item (get-item container id)
+            newValue (:value newValue)]
         (info :oldItem item)
         (.add (.getValues item) newValue)
         (info :newItem item)
