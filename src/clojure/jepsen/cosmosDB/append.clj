@@ -38,17 +38,18 @@
     (assoc this :conn (c/build-client node account-host account-key consistency-level)))
 
   (setup! [this test]
-    (with-retry [tries 5]
-      (let [db   (c/db conn databaseName)]
-        (let [container (c/create-container! db containerName throughput partitionKeyPath)]
-          (info "Container created")))
-
-      (catch CosmosException e
-        (if (pos? tries)
-          (do (info (.getMessage e))
-              (Thread/sleep 5000)
-              (retry (dec tries)))
-          (throw e)))))
+    (try
+      (let [db (c/db conn databaseName)]
+        (c/create-container! db containerName throughput partitionKeyPath))
+      
+      (catch CosmosException e#
+        (condp re-find (.getMessage e#)
+          #"Resource with specified id, name, or unique index already exists"
+          (info "Container already exists.")
+          (throw e#))
+        )
+      )
+    )
 
   (invoke! [this test op]
     (c/with-errors op

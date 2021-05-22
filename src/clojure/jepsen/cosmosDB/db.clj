@@ -20,8 +20,8 @@
             key                (:key opts)
             consistency-level  (get c/consistency-levels (:consistency opts))
             client             (c/build-client node host key consistency-level)]
-        (try c/create-database! client databaseName
-             (catch RetryWithException e#
+        (try (c/create-database! client databaseName)
+             (catch CosmosException e#
                (condp re-find (.getMessage e#)
                  #"Resource with specified id, name, or unique index already exists"
                  (info node "Database already exists.")
