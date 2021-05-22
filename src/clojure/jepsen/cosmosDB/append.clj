@@ -15,10 +15,10 @@
 (def throughput        400)
 (def partitionKeyPath  "/id")
 
-(defn apply-mop!
+(defn mop!
   "Applies a transactional micro-operation to a connection."
   [test container [f k v :as mop]]
-  (pprint "in apply-mop!")
+  (pprint "in mop!")
   (pprint mop)
   (case f
     :r      [f k (vec (:value (c/read-item container k)))]
@@ -42,14 +42,12 @@
   (setup! [this test])
 
   (invoke! [this test op]
-    (pprint (str "test" test))
-    (let [txn (:value op)]
-      (c/with-errors op
-         (timeout 5000 (assoc op :type :info, :error :timeout)
-                  (for [x txn]
-                    (let [txn' (apply-mop! test container x)]
-                      (assoc op :type :ok, :value txn')))
-                  ))))
+    (pprint test)
+    (c/with-errors op
+                   (let [txn       (:value op)
+                         txn'      (mapv (partial mop! test container) txn)]
+                     (assoc op :type :ok, :value txn')))
+    )
 
   (teardown! [this test])
 
