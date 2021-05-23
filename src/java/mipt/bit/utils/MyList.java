@@ -4,9 +4,24 @@ import java.util.List;
 
 public class MyList {
     private String id;
-    private List<Long> values;
+    private String key;
+    private List<Integer> values;
 
-    public MyList(String id, List<Long> values) {
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public MyList(String id, String key, List<Integer> values) {
+        this.id = id;
+        this.values = values;
+        this.key = key;
+    }
+
+    public MyList(String id, List<Integer> values) {
         this.id = id;
         this.values = values;
     }
@@ -18,7 +33,7 @@ public class MyList {
         return id;
     }
 
-    public List<Long> getValues() {
+    public List<Integer> getValues() {
         return values;
     }
 
@@ -26,12 +41,12 @@ public class MyList {
         this.id = id;
     }
 
-    public void setValues(List<Long> values) {
+    public void setValues(List<Integer> values) {
         this.values = values;
     }
 
     @Override
     public String toString() {
-        return "MyList{" + "id='" + id + '\'' + ", values=" + values + '}';
+        return "MyList{" + "id='" + id + '\'' + ", key='" + key + '\'' + ", values=" + values + '}';
     }
 }
