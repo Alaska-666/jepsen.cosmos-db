@@ -62,7 +62,11 @@
 
       (catch ConflictException e
         (assoc op :type :fail, :error :creation-conflict))
+
+      (catch CosmosException e
+        (assoc op :type :fail, :error :cosmos-exception))
       )
+
     )
 
   (teardown! [this test])
