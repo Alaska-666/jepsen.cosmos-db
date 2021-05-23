@@ -209,7 +209,7 @@
   (info :appends-before appends)
   (if (.containsKey appends key)
     (add-value appends key newValue)
-    (.put appends (ArrayList. (Collections/singletonList newValue))))
+    (.put appends key (ArrayList. (Collections/singletonList newValue))))
   (info :appends-after appends)
 
   (let [oldMyList (get-item-or-create-if-not-exists container key)]
