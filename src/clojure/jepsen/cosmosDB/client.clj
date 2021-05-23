@@ -222,7 +222,7 @@
   (info :appends-after appends)
 
   (let [oldMyList (get-item-or-create-if-not-exists container key)]
-    (.upsertItemOperation batch (MyList. (.toString key) partitionKey (concat-lists (.getValues oldMyList) (key appends))))
+    (.upsertItemOperation batch (MyList. (.toString key) partitionKey (concat-lists (.getValues oldMyList) (.get appends key))))
     )
   )
 
