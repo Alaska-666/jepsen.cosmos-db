@@ -89,7 +89,7 @@
       ;           (assoc op :type :ok, :value txn')))
       (info :count (count (:value op)))
 
-      (timeout 5000 (assoc op :type :info, :error :timeout)
+      (timeout 10000 (assoc op :type :info, :error :timeout)
                (let [txn' (if (<= (count (:value op)) 1)
                             (let [db        (c/db conn databaseName)
                                   container (c/container db containerName)]
