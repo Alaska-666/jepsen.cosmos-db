@@ -77,10 +77,15 @@
       (catch CosmosException e nil)
       )))
 
+(def consistency-models
+  {:eventual  (:read-your-writes)
+   :session   (:causal)
+   :staleness (:sequential)
+   :strong    (:linearizable)
+   :prefix    (:PRAM)})
+
 (defn workload
-  "A generator, client, and checker for a list-append test.
-  FIXME: fix consistency-models and other options !!!!!!
-  "
+  "A generator, client, and checker for a list-append test."
   [opts]
   (let [host               (:host opts)
         key                (:key opts)
@@ -89,5 +94,5 @@
                               :key-dist           :exponential
                               :max-txn-length     (:max-txn-length opts 4)
                               :max-writes-per-key (:max-writes-per-key opts)
-                              :consistency-models [:strong-snapshot-isolation]})
+                              :consistency-models [get consistency-models (:consistency opts)]})
       :client (Client. nil host key consistency-level))))
