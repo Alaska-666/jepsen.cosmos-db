@@ -104,7 +104,7 @@
                               (let [response (c/execute-batch container batch)]
                                 (if (not (.isSuccessStatusCode response))
                                   (assoc op :type :fail, :value :transaction-fail)
-                                  (mapv (partial processing-results!) (.getResults response)))
+                                  (mapv processing-results! (.getResults response)))
                                 ))
                             )]
                  (assoc op :type :ok, :value txn'))
