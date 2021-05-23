@@ -78,11 +78,11 @@
       )))
 
 (def consistency-models
-  {:eventual  (:read-your-writes)
-   :session   (:causal)
-   :staleness (:sequential)
-   :strong    (:linearizable)
-   :prefix    (:PRAM)})
+  {:eventual  [:read-your-writes]
+   :session   [:causal]
+   :staleness [:sequential]
+   :strong    [:linearizable]
+   :prefix    [:PRAM]})
 
 (defn workload
   "A generator, client, and checker for a list-append test."
@@ -94,5 +94,5 @@
                               :key-dist           :exponential
                               :max-txn-length     (:max-txn-length opts 4)
                               :max-writes-per-key (:max-writes-per-key opts)
-                              :consistency-models [get consistency-models (:consistency opts)]})
+                              :consistency-models (get consistency-models (:consistency opts))})
       :client (Client. nil host key consistency-level))))
