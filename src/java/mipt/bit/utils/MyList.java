@@ -21,11 +21,6 @@ public class MyList {
         this.key = key;
     }
 
-    public MyList(String id, List<Integer> values) {
-        this.id = id;
-        this.values = values;
-    }
-
     public MyList() {
     }
 

@@ -10,7 +10,7 @@
                              CosmosDatabase
                              CosmosException
                              CosmosContainer
-                             CosmosAsyncClient)
+                             CosmosAsyncClient TransactionalBatch TransactionalBatchResponse)
            (com.azure.cosmos.models CosmosContainerProperties
                                     CosmosItemRequestOptions
                                     PartitionKey
@@ -20,6 +20,7 @@
            (clojure.lang ExceptionInfo)
            (com.azure.cosmos.implementation NotFoundException RetryWithException ConflictException)))
 
+(def partitionKey "key")
 
 (defn ^CosmosClient build-client
   "???"
@@ -117,23 +118,22 @@
 (defn ^MyList get-item
   [^CosmosContainer container id]
   (let [id (.toString id)]
-    (.getItem (.readItem container id (PartitionKey. id) MyList)))
+    (.getItem (.readItem container id (PartitionKey. partitionKey) MyList)))
   )
 
 (defn create-empty-item
   [^CosmosContainer container id]
   ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
-  ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Collections.emptyList()), new PartitionKey(id), cosmosItemRequestOptions);
+  ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Collections.emptyList()), PartitionKey, cosmosItemRequestOptions);
   (try
     (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
           id (.toString id)
-          item (.createItem container (MyList. id (. Collections emptyList)) (PartitionKey. id) cosmosItemRequestOptions)]
+          item (.createItem container (MyList. id partitionKey (. Collections emptyList))  (PartitionKey. partitionKey) cosmosItemRequestOptions)]
       (info
         :create   true
         :item     (.getItem item)
         :duration (.getDuration item)
-        )
-      )
+        ))
     (catch ConflictException e nil)
     )
   )
@@ -141,7 +141,7 @@
 (defn read-item
   "Find a object by ID"
   [^CosmosContainer container id]
-  ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
+  ;Object object = container.readItem(id, PartitionKey, Object.class).getItem();
   (try
     (let [^MyList item (get-item container id)]
       (info :read item)
@@ -162,39 +162,80 @@
 (defn create-item
   [^CosmosContainer container id values]
   ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
-  ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Arrays.asList(values)), new PartitionKey(id), cosmosItemRequestOptions);
+  ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Arrays.asList(values)), PartitionKey, cosmosItemRequestOptions);
   (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
-        item (.createItem container (MyList. id (.asList Arrays values)) (PartitionKey. id) cosmosItemRequestOptions)]
+        item (.createItem container (MyList. id partitionKey (.asList Arrays values)) (PartitionKey. partitionKey) cosmosItemRequestOptions)]
     (info
       :item     (.getItem item)
       :duration (.getDuration item))
     )
   )
 
+(defn ^TransactionalBatch create-transactional-batch
+  [opts]
+  ;TransactionalBatch batch = TransactionalBatch.createTransactionalBatch(partitionKey);
+  (.createTransactionalBatch TransactionalBatch  (PartitionKey. partitionKey))
+  )
+
+(defn update-batch-read
+  [^CosmosContainer container ^TransactionalBatch batch id]
+  (try
+    (.readItem container id partitionKey MyList)
+    (catch NotFoundException e
+      (create-empty-item container id)))
+
+  (.readItemOperation batch id)
+  )
+
+(defn ^MyList get-item-or-create-if-not-exists
+  [^CosmosContainer container id]
+  (try
+    (let [item (.readItem container id partitionKey MyList)]
+      (.getItem item))
+    (catch NotFoundException e
+      (create-empty-item container id)
+      (get-item container id)))
+  )
+
+(defn update-batch-append
+  [^CosmosContainer container ^TransactionalBatch batch appends key newValue]
+  (info :appends-before appends)
+  (if (contains? appends key)
+    (assoc appends key (conj (key appends) newValue))
+    (assoc appends key (vector val)))
+  (info :appends-after appends)
+
+  (let [oldMyList (get-item-or-create-if-not-exists container key)]
+    (.upsertItemOperation batch (MyList. key partitionKey (concat (.getValues oldMyList) (key appends))))
+    )
+  )
+
+(defn ^TransactionalBatchResponse execute-batch
+  [^CosmosContainer container ^TransactionalBatch batch]
+  ;TransactionalBatchResponse response = container.executeTransactionalBatch(batch);
+  (.executeTransactionalBatch container batch)
+  )
+
 (defn upsert-item
   [^CosmosContainer container id newValue]
-  ;MyList list = container.readItem(id, new PartitionKey(id), MyList.class).getItem();
+  ;MyList list = container.readItem(id, PartitionKey, MyList.class).getItem();
   ;list.getValues().add(newValue);
   ;CosmosItemResponse<MyList> item = container.upsertItem(list);
   (try
-    (let [^MyList item (get-item container id)
-          newValue (:value newValue)]
+    (let [^MyList item (get-item container id)]
       (info :oldItem item)
       (.add (.getValues item) newValue)
       (info :newItem item)
       (.upsertItem container item)
-      (info :values (.getValues item))
       (.getValues item))
     (catch NotFoundException e#
       (info :exception (.getMessage e#))
       (create-empty-item container id)
-      (let [^MyList item (get-item container id)
-            newValue (:value newValue)]
+      (let [^MyList item (get-item container id)]
         (info :oldItem item)
         (.add (.getValues item) newValue)
         (info :newItem item)
         (.upsertItem container item)
-        (info :values (.getValues item))
         (.getValues item))
       )
     )

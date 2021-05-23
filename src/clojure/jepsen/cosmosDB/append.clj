@@ -10,13 +10,15 @@
             [slingshot.slingshot :refer [try+]]
             [jepsen.tests.cycle.append :as list-append]
             [jepsen.cosmosDB [client :as c]])
-  (:import (com.azure.cosmos CosmosException)
-           (com.azure.cosmos.implementation RetryWithException ConflictException)))
+  (:import (com.azure.cosmos CosmosException TransactionalBatch)
+           (com.azure.cosmos.implementation RetryWithException ConflictException)
+           (clojure.lang PersistentHashMap)
+           (mipt.bit.utils MyList)))
 
 (def databaseName      "AzureJepsenTestDB")
 (def containerName     "JepsenTestContainer")
 (def throughput        400)
-(def partitionKeyPath  "/id")
+(def partitionKeyPath  "/key")
 
 (defn mop!
   "Applies a transactional micro-operation to a connection."
@@ -24,9 +26,27 @@
   (info :mop mop)
   (case f
     :r      [f k (vec (c/read-item container k))]
-    :append (let [res  (c/upsert-item container k {:value v})]
+    :append (let [res  (c/upsert-item container k v)]
               mop)
     )
+  )
+
+(defn update-batch!
+  [container batch appends [f k v :as mop]]
+  (info :update-batch mop)
+  (case f
+    :r       (c/update-batch-read container batch k)
+    :append  (c/update-batch-append container batch appends k v)
+    )
+  )
+
+(defn processing-results!
+  [TransactionalBatchOperationResult result [f k v :as mop]]
+  (info :in-processing-results (.getOperationType (.getOperation result)))
+  (case (.getOperationType (.getOperation result))
+    :READ    [f k (vec (.getValues (.getItem result MyList)))]
+    :UPSERT  mop
+    (info :processing-results "jopa"))
   )
 
 (defrecord Client [conn account-host account-key consistency-level]
@@ -50,12 +70,33 @@
 
   (invoke! [this test op]
     (try+
+      ;(timeout 5000 (assoc op :type :info, :error :timeout)
+      ;         (let [txn       (:value op)
+      ;               db        (c/db conn databaseName)
+      ;               container (c/container db containerName)
+      ;               txn'      (mapv (partial mop! test container) txn)]
+      ;           (assoc op :type :ok, :value txn')))
+
       (timeout 5000 (assoc op :type :info, :error :timeout)
-               (let [txn       (:value op)
-                     db        (c/db conn databaseName)
-                     container (c/container db containerName)
-                     txn'      (mapv (partial mop! test container) txn)]
-                 (assoc op :type :ok, :value txn')))
+               (let [txn' (if (<= (count (:value op)) 1)
+                            (let [db        (c/db conn databaseName)
+                                  container (c/container db containerName)]
+                              [mop! test container (first (:value op))])
+
+                            ; We need a transaction
+                            (let [db        (c/db conn databaseName)
+                                  container (c/container db containerName)
+                                  batch     (c/create-transactional-batch nil)
+                                  appends   (PersistentHashMap/EMPTY)]
+                              (mapv (partial update-batch! container batch appends) (:value op))
+                              (let [response (c/execute-batch container batch)]
+                                (if (not (.isSuccessStatusCode response))
+                                  (assoc op :type :fail, :value :transaction-fail)
+                                  (mapv (partial processing-results!) (.getResults response) (:value op)))
+                                ))
+                            )]
+                 (assoc op :type :ok, :value txn'))
+               )
 
       (catch RetryWithException e
         (assoc op :type :fail, :error :conflicting-request))
@@ -66,7 +107,6 @@
       (catch CosmosException e
         (assoc op :type :fail, :error :cosmos-exception))
       )
-
     )
 
   (teardown! [this test])
