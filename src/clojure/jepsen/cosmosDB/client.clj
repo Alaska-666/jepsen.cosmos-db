@@ -189,7 +189,7 @@
 (defn ^MyList get-item-or-create-if-not-exists
   [^CosmosContainer container id]
   (try
-    (let [item (.readItem container (.toString id) partitionKey MyList)]
+    (let [item (.readItem container (.toString id) (PartitionKey. partitionKey) MyList)]
       (.getItem item))
     (catch NotFoundException e
       (create-empty-item container id)
