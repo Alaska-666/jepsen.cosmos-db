@@ -76,6 +76,7 @@
       ;               container (c/container db containerName)
       ;               txn'      (mapv (partial mop! test container) txn)]
       ;           (assoc op :type :ok, :value txn')))
+      (info :count (count (:value op)))
 
       (timeout 5000 (assoc op :type :info, :error :timeout)
                (let [txn' (if (<= (count (:value op)) 1)
