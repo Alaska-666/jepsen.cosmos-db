@@ -12,8 +12,8 @@
             [jepsen.cosmosDB [client :as c]])
   (:import (com.azure.cosmos CosmosException TransactionalBatch)
            (com.azure.cosmos.implementation RetryWithException ConflictException)
-           (clojure.lang PersistentHashMap)
-           (mipt.bit.utils MyList)))
+           (mipt.bit.utils MyList)
+           (java.util HashMap)))
 
 (def databaseName      "AzureJepsenTestDB")
 (def containerName     "JepsenTestContainer")
@@ -87,7 +87,7 @@
                             (let [db        (c/db conn databaseName)
                                   container (c/container db containerName)
                                   batch     (c/create-transactional-batch nil)
-                                  appends   (PersistentHashMap/EMPTY)]
+                                  appends   (HashMap.)]
                               (mapv (partial update-batch! container batch appends) (:value op))
                               (let [response (c/execute-batch container batch)]
                                 (if (not (.isSuccessStatusCode response))

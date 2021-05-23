@@ -15,7 +15,7 @@
                                     CosmosItemRequestOptions
                                     PartitionKey
                                     ThroughputProperties)
-           (java.util Collections Arrays)
+           (java.util Collections Arrays ArrayList)
            (mipt.bit.utils MyList)
            (clojure.lang ExceptionInfo)
            (com.azure.cosmos.implementation NotFoundException RetryWithException ConflictException)))
@@ -198,12 +198,20 @@
       (get-item container id)))
   )
 
+(defn add-value
+  [appends id newValue]
+  (let [values (.get appends id)]
+    (.add values newValue)
+    (.put appends id values)
+    )
+  )
+
 (defn update-batch-append
   [^CosmosContainer container ^TransactionalBatch batch appends key newValue]
   (info :appends-before appends)
-  (if (contains? appends key)
-    (assoc appends key (conj (key appends) newValue))
-    (assoc appends key (vector val)))
+  (if (.containsKey appends key)
+    (add-value appends key newValue)
+    (.put appends (ArrayList. (.singletonList Collections newValue))))
   (info :appends-after appends)
 
   (let [oldMyList (get-item-or-create-if-not-exists container key)]
