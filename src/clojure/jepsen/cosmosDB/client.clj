@@ -144,10 +144,14 @@
   ;Object object = container.readItem(id, new PartitionKey(id), Object.class).getItem();
   (try
     (let [^MyList item (get-item container id)]
+      (info :read item)
+      (info :values (.getValues item))
       (.getValues item))
     (catch NotFoundException e#
       (create-empty-item container id)
       (let [^MyList item (get-item container id)]
+        (info :read item)
+        (info :values (.getValues item))
         (.getValues item)
         )
       )
@@ -175,8 +179,11 @@
   (try
     (let [^MyList item (get-item container id)
           newValue (:value newValue)]
+      (info :oldItem item)
       (.add (.getValues item) newValue)
+      (info :newItem item)
       (.upsertItem container item)
+      (info :values (.getValues item))
       (.getValues item))
     (catch NotFoundException e#
       (info :exception (.getMessage e#))
@@ -187,6 +194,7 @@
         (.add (.getValues item) newValue)
         (info :newItem item)
         (.upsertItem container item)
+        (info :values (.getValues item))
         (.getValues item))
       )
     )
