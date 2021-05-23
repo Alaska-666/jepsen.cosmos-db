@@ -19,7 +19,7 @@
 (def special-nemeses
   "A map of special nemesis names to collections of faults"
   {:none []
-   :all  [:pause :kill :partition :clock :member]})
+   :all  [:pause :kill :clock :member]})
 
 (defn parse-nemesis-spec
   "Takes a comma-separated nemesis string and returns a collection of keyword
@@ -58,8 +58,8 @@
 
    [nil "--nemesis FAULTS" "A comma-separated list of nemesis faults to enable"
      :parse-fn parse-nemesis-spec
-     :validate [(partial every? #{:pause :kill :partition :clock :member})
-                "Faults must be pause, kill, partition, clock, or member, or the special faults all or none."]]
+     :validate [(partial every? #{:pause :kill :clock :member})
+                "Faults must be pause, kill, clock, or member, or the special faults all or none."]]
 
    [nil "--nemesis-interval SECS" "Roughly how long between nemesis operations."
     :default 2
@@ -88,7 +88,6 @@
                         {:db        db
                          :nodes     (:nodes opts)
                          :faults    (:nemesis opts)
-                         :partition {:targets [:primaries]}
                          :pause     {:targets [nil :one :primaries :majority :all]}
                          :kill      {:targets [nil :one :primaries :majority :all]}
                          :interval  (:nemesis-interval opts)})]
@@ -125,7 +124,7 @@
 (def all-nemeses
   "Combinations of nemeses for tests"
   [[]
-   [:pause :kill :partition :clock :member]])
+   [:pause :kill :clock :member]])
 
 (defn all-test-options
   "Takes base cli options, a collection of nemeses, workloads, and a test count,
