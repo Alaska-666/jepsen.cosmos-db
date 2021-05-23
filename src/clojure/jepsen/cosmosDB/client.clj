@@ -181,7 +181,7 @@
 (defn update-batch-read
   [^CosmosContainer container ^TransactionalBatch batch id]
   (try
-    (.readItem container (.toString id) partitionKey MyList)
+    (.readItem container (.toString id) (PartitionKey. partitionKey) MyList)
     (catch NotFoundException e
       (create-empty-item container (.toString id))))
 
