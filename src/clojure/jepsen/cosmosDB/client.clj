@@ -205,14 +205,6 @@
     )
   )
 
-(defn concat-lists
-  [list1 list2]
-  (let [newList (ArrayList.)]
-    (.addAll newList list1)
-    (.addAll newList list2)
-    (newList))
-  )
-
 (defn update-batch-append
   [^CosmosContainer container ^TransactionalBatch batch appends key newValue]
   (info :appends-before appends)
@@ -222,7 +214,7 @@
   (info :appends-after appends)
 
   (let [oldMyList (get-item-or-create-if-not-exists container key)]
-    (.upsertItemOperation batch (MyList. (.toString key) partitionKey (concat-lists (.getValues oldMyList) (.get appends key))))
+    (.upsertItemOperation batch (MyList. (.toString key) partitionKey (.getValues oldMyList) (.get appends key)))
     )
   )
 

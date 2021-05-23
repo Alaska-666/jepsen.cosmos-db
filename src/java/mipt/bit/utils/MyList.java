@@ -1,11 +1,14 @@
 package mipt.bit.utils;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MyList {
     private String id;
     private String key;
-    private List<Integer> values;
+    private List<Long> values;
 
     public String getKey() {
         return key;
@@ -15,9 +18,15 @@ public class MyList {
         this.key = key;
     }
 
-    public MyList(String id, String key, List<Integer> values) {
+    public MyList(String id, String key, List<Long> values) {
         this.id = id;
         this.values = values;
+        this.key = key;
+    }
+
+    public MyList(String id, String key, List<Long> values1, List<Long> values2) {
+        this.id = id;
+        this.values = Stream.of(values1, values2).flatMap(Collection::stream).collect(Collectors.toList());
         this.key = key;
     }
 
@@ -28,7 +37,7 @@ public class MyList {
         return id;
     }
 
-    public List<Integer> getValues() {
+    public List<Long> getValues() {
         return values;
     }
 
@@ -36,7 +45,7 @@ public class MyList {
         this.id = id;
     }
 
-    public void setValues(List<Integer> values) {
+    public void setValues(List<Long> values) {
         this.values = values;
     }
 
