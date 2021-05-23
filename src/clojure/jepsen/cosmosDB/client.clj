@@ -174,7 +174,7 @@
 (defn ^TransactionalBatch create-transactional-batch
   [opts]
   ;TransactionalBatch batch = TransactionalBatch.createTransactionalBatch(partitionKey);
-  (.createTransactionalBatch TransactionalBatch  (PartitionKey. partitionKey))
+  (TransactionalBatch/createTransactionalBatch (PartitionKey. partitionKey))
   )
 
 (defn update-batch-read
