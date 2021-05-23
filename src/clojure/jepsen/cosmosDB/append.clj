@@ -40,14 +40,25 @@
     )
   )
 
+(def operations
+  {:READ   :r
+   :UPSERT :append})
+
+
 (defn processing-results!
-  [TransactionalBatchOperationResult result [f k v :as mop]]
+  [TransactionalBatchOperationResult result]
   (info :in-processing-results (.getOperationType (.getOperation result)))
-  (case (.getOperationType (.getOperation result))
+  (let [operation (.getOperationType (.getOperation result))
+        f         (get operations operation)
+        item      (.getItem result MyList)
+        k         (.valueOf Long (.getId item))
+        values    (.getValues item)
+        v         (.get values ((.size values) - 1))]
+  (case operation
     :READ    [f k (vec (.getValues (.getItem result MyList)))]
-    :UPSERT  mop
+    :UPSERT  [f k v]
     (info :processing-results "jopa"))
-  )
+  ))
 
 (defrecord Client [conn account-host account-key consistency-level]
   client/Client
@@ -93,7 +104,7 @@
                               (let [response (c/execute-batch container batch)]
                                 (if (not (.isSuccessStatusCode response))
                                   (assoc op :type :fail, :value :transaction-fail)
-                                  (mapv (partial processing-results!) (.getResults response) (:value op)))
+                                  (mapv (partial processing-results!) (.getResults response)))
                                 ))
                             )]
                  (assoc op :type :ok, :value txn'))
