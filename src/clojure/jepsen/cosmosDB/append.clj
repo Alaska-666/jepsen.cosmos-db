@@ -10,7 +10,8 @@
             [slingshot.slingshot :refer [try+]]
             [jepsen.tests.cycle.append :as list-append]
             [jepsen.cosmosDB [client :as c]])
-  (:import (com.azure.cosmos CosmosException)))
+  (:import (com.azure.cosmos CosmosException)
+           (com.azure.cosmos.implementation RetryWithException ConflictException)))
 
 (def databaseName      "AzureJepsenTestDB")
 (def containerName     "JepsenTestContainer")
@@ -48,13 +49,21 @@
     )
 
   (invoke! [this test op]
-    (c/with-errors op
-       (timeout 5000 (assoc op :type :info, :error :timeout)
-          (let [txn       (:value op)
-                db        (c/db conn databaseName)
-                container (c/container db containerName)
-                txn'      (mapv (partial mop! test container) txn)]
-            (assoc op :type :ok, :value txn')))))
+    (try+
+      (timeout 5000 (assoc op :type :info, :error :timeout)
+               (let [txn       (:value op)
+                     db        (c/db conn databaseName)
+                     container (c/container db containerName)
+                     txn'      (mapv (partial mop! test container) txn)]
+                 (assoc op :type :ok, :value txn')))
+
+      (catch RetryWithException e
+        (assoc op :type :fail, :error :conflicting-request))
+
+      (catch ConflictException e
+        (assoc op :type :fail, :error :creation-conflict))
+      )
+    )
 
   (teardown! [this test])
 
