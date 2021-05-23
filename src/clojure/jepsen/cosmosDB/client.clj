@@ -15,10 +15,11 @@
                                     CosmosItemRequestOptions
                                     PartitionKey
                                     ThroughputProperties)
-           (java.util Collections Arrays ArrayList)
+           (java.util Collections Arrays ArrayList Collection)
            (mipt.bit.utils MyList)
            (clojure.lang ExceptionInfo)
-           (com.azure.cosmos.implementation NotFoundException RetryWithException ConflictException)))
+           (com.azure.cosmos.implementation NotFoundException RetryWithException ConflictException)
+           (java.util.stream Stream Collectors)))
 
 (def partitionKey "key")
 
@@ -204,6 +205,14 @@
     )
   )
 
+(defn concat-lists
+  [list1 list2]
+  (let [newList (ArrayList.)]
+    (.addAll newList list1)
+    (.addAll newList list2)
+    (newList))
+  )
+
 (defn update-batch-append
   [^CosmosContainer container ^TransactionalBatch batch appends key newValue]
   (info :appends-before appends)
@@ -213,7 +222,7 @@
   (info :appends-after appends)
 
   (let [oldMyList (get-item-or-create-if-not-exists container key)]
-    (.upsertItemOperation batch (MyList. (.toString key) partitionKey (concat (.getValues oldMyList) (key appends))))
+    (.upsertItemOperation batch (MyList. (.toString key) partitionKey (concat-lists (.getValues oldMyList) (key appends))))
     )
   )
 
