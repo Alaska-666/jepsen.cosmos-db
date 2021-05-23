@@ -93,6 +93,5 @@
     (assoc (list-append/test {:key-count          10
                               :key-dist           :exponential
                               :max-txn-length     (:max-txn-length opts 4)
-                              :max-writes-per-key (:max-writes-per-key opts)
-                              :consistency-models (get consistency-models (:consistency opts))})
+                              :max-writes-per-key (:max-writes-per-key opts)})
       :client (Client. nil host key consistency-level))))
