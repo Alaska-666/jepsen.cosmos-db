@@ -164,6 +164,7 @@
   ;CosmosItemRequestOptions cosmosItemRequestOptions = new CosmosItemRequestOptions();
   ;CosmosItemResponse<MyList> item = container.createItem(new MyList(id, Arrays.asList(values)), PartitionKey, cosmosItemRequestOptions);
   (let [cosmosItemRequestOptions (CosmosItemRequestOptions.)
+        id (.toString id)
         item (.createItem container (MyList. id partitionKey (.asList Arrays values)) (PartitionKey. partitionKey) cosmosItemRequestOptions)]
     (info
       :item     (.getItem item)
@@ -180,17 +181,17 @@
 (defn update-batch-read
   [^CosmosContainer container ^TransactionalBatch batch id]
   (try
-    (.readItem container id partitionKey MyList)
+    (.readItem container (.toString id) partitionKey MyList)
     (catch NotFoundException e
-      (create-empty-item container id)))
+      (create-empty-item container (.toString id))))
 
-  (.readItemOperation batch id)
+  (.readItemOperation batch (.toString id))
   )
 
 (defn ^MyList get-item-or-create-if-not-exists
   [^CosmosContainer container id]
   (try
-    (let [item (.readItem container id partitionKey MyList)]
+    (let [item (.readItem container (.toString id) partitionKey MyList)]
       (.getItem item))
     (catch NotFoundException e
       (create-empty-item container id)
@@ -206,7 +207,7 @@
   (info :appends-after appends)
 
   (let [oldMyList (get-item-or-create-if-not-exists container key)]
-    (.upsertItemOperation batch (MyList. key partitionKey (concat (.getValues oldMyList) (key appends))))
+    (.upsertItemOperation batch (MyList. (.toString key) partitionKey (concat (.getValues oldMyList) (key appends))))
     )
   )
 
