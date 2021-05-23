@@ -105,18 +105,12 @@
           (assoc ~op :type :info, :error [:ex-info (.getMessage e#)]))
 
         (catch RetryWithException e#
-          (condp re-find (.getMessage e#)
-            #"Conflicting request to resource has been attempted. Retry to avoid conflicts."
-            (assoc ~op :type :fail, :error :conflicting-request)
+          (warn e#)
+          (assoc ~op :type :fail, :error :conflicting-request))
 
-            (throw e#)))
         (catch ConflictException e#
-          (condp re-find (.getMessage e#)
-            #"Resource with specified id or name already exists"
-            (assoc ~op :type :fail, :error :creation-conflict)
-
-            (throw e#))
-          )
+          (warn e#)
+          (assoc ~op :type :fail, :error :creation-conflict))
         )
   )
 
