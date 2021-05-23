@@ -145,13 +145,11 @@
   (try
     (let [^MyList item (get-item container id)]
       (info :read item)
-      (info :values (.getValues item))
       (.getValues item))
     (catch NotFoundException e#
       (create-empty-item container id)
       (let [^MyList item (get-item container id)]
         (info :read item)
-        (info :values (.getValues item))
         (.getValues item)
         )
       )
