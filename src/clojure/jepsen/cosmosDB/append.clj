@@ -51,11 +51,12 @@
   (let [operation (.getOperationType (.getOperation result))
         f         (get operations operation)
         item      (.getItem result MyList)
-        k         (.valueOf Long (.getId item))
+        k         (.getLongId item)
         values    (.getValues item)
         v         (.get values ((.size values) - 1))]
+    (pprint (f k v))
   (case operation
-    :READ    [f k (vec (.getValues (.getItem result MyList)))]
+    :READ    [f k (vec values)]
     :UPSERT  [f k v]
     (info :processing-results "jopa"))
   ))

@@ -37,6 +37,10 @@ public class MyList {
         return id;
     }
 
+    public Long getLongId() {
+        return Long.valueOf(id);
+    }
+
     public List<Long> getValues() {
         return values;
     }
