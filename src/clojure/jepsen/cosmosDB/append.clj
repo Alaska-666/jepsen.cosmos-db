@@ -47,21 +47,17 @@
 
 (defn processing-results!
   [container ^TransactionalBatchOperationResult result]
+  (info :in-processing-results (.toString (.getOperationType (.getOperation result))))
   (let [operation (.toString (.getOperationType (.getOperation result)))
         f         (get operations operation)
         item      (.getItem result MyList)
         k         (.getLongId item)
         values    (.getValues item)
         v         (.getLastValue item)]
-    (info :in-processing-results operation)
-    (pprint item)
-    (pprint [f k v])
-    (pprint values)
   (case operation
     "READ"    [f k (vec values)]
-    "UPSERT"  [f k v]
-    (info :processing-results "jopa"))
-  ))
+    "UPSERT"  [f k v]))
+  )
 
 (defrecord Client [conn account-host account-key consistency-level]
   client/Client
@@ -103,10 +99,8 @@
                                   container (c/container db containerName)
                                   batch     (c/create-transactional-batch nil)
                                   appends   (HashMap.)]
-                              (pprint (:value op))
                               (mapv (partial update-batch! container batch appends) (:value op))
                               (let [response (c/execute-batch container batch)]
-                                (pprint (.getResults response))
                                 (if (not (.isSuccessStatusCode response))
                                   (assoc op :type :fail, :value :transaction-fail)
                                   (mapv (partial processing-results! container) (.getResults response)))
