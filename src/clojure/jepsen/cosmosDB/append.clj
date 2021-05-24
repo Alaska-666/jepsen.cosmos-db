@@ -47,15 +47,16 @@
 
 (defn processing-results!
   [container ^TransactionalBatchOperationResult result]
-  (info :in-processing-results (.getOperationType (.getOperation result)))
   (let [operation (.toString (.getOperationType (.getOperation result)))
         f         (get operations operation)
         item      (.getItem result MyList)
         k         (.getLongId item)
         values    (.getValues item)
         v         (.getLastValue item)]
+    (info :in-processing-results operation)
     (pprint item)
-    (pprint (f k v))
+    (pprint [f k v])
+    (pprint values)
   (case operation
     :READ    [f k (vec values)]
     :UPSERT  [f k v]
