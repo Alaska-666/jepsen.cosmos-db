@@ -54,6 +54,7 @@
         k         (.getLongId item)
         values    (.getValues item)
         v         (.getLastValue item)]
+    (pprint item)
     (pprint (f k v))
   (case operation
     :READ    [f k (vec values)]
