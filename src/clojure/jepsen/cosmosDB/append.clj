@@ -48,7 +48,7 @@
 (defn processing-results!
   [container ^TransactionalBatchOperationResult result]
   (info :in-processing-results (.getOperationType (.getOperation result)))
-  (let [operation (.getOperationType (.getOperation result))
+  (let [operation (.toString (.getOperationType (.getOperation result)))
         f         (get operations operation)
         item      (.getItem result MyList)
         k         (.getLongId item)
