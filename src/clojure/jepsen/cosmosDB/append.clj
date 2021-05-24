@@ -95,7 +95,7 @@
                                   container (c/container db containerName)]
                               (pprint "here")
                               (pprint (first (:value op)))
-                              [mop! test container (first (:value op))])
+                              [(mop! test container (first (:value op)))])
 
                             ; We need a transaction
                             (let [db        (c/db conn databaseName)
