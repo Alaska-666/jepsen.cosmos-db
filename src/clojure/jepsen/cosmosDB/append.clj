@@ -53,7 +53,7 @@
         item      (.getItem result MyList)
         k         (.getLongId item)
         values    (.getValues item)
-        v         (.getLastValue values)]
+        v         (.getLastValue item)]
     (pprint (f k v))
   (case operation
     :READ    [f k (vec values)]
