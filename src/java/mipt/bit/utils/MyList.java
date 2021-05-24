@@ -42,6 +42,9 @@ public class MyList {
     }
 
     public Long getLastValue() {
+        if (values.isEmpty()) {
+            return null;
+        }
         return values.get(values.size() - 1);
     }
 
