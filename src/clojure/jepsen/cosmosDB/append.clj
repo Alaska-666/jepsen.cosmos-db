@@ -10,7 +10,7 @@
             [slingshot.slingshot :refer [try+]]
             [jepsen.tests.cycle.append :as list-append]
             [jepsen.cosmosDB [client :as c]])
-  (:import (com.azure.cosmos CosmosException TransactionalBatch)
+  (:import (com.azure.cosmos CosmosException TransactionalBatch TransactionalBatchOperationResult)
            (com.azure.cosmos.implementation RetryWithException ConflictException)
            (mipt.bit.utils MyList)
            (java.util HashMap)))
@@ -46,7 +46,7 @@
 
 
 (defn processing-results!
-  [TransactionalBatchOperationResult result]
+  [container ^TransactionalBatchOperationResult result]
   (info :in-processing-results (.getOperationType (.getOperation result)))
   (let [operation (.getOperationType (.getOperation result))
         f         (get operations operation)
@@ -104,7 +104,7 @@
                               (let [response (c/execute-batch container batch)]
                                 (if (not (.isSuccessStatusCode response))
                                   (assoc op :type :fail, :value :transaction-fail)
-                                  (mapv processing-results! (.getResults response)))
+                                  (mapv (partial processing-results! container) (.getResults response)))
                                 ))
                             )]
                  (assoc op :type :ok, :value txn'))
