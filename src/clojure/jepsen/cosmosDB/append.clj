@@ -41,8 +41,8 @@
   )
 
 (def operations
-  {:READ   :r
-   :UPSERT :append})
+  {"READ"   :r
+   "UPSERT" :append})
 
 
 (defn processing-results!
@@ -58,8 +58,8 @@
     (pprint [f k v])
     (pprint values)
   (case operation
-    :READ    [f k (vec values)]
-    :UPSERT  [f k v]
+    "READ"    [f k (vec values)]
+    "UPSERT"  [f k v]
     (info :processing-results "jopa"))
   ))
 
