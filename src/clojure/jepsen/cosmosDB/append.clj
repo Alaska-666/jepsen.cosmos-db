@@ -93,6 +93,8 @@
                (let [txn' (if (<= (count (:value op)) 1)
                             (let [db        (c/db conn databaseName)
                                   container (c/container db containerName)]
+                              (pprint "here")
+                              (pprint (first (:value op)))
                               [mop! test container (first (:value op))])
 
                             ; We need a transaction
