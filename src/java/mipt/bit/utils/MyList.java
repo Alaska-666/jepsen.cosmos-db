@@ -41,6 +41,10 @@ public class MyList {
         return Long.valueOf(id);
     }
 
+    public Long getLastValue() {
+        return values.get(values.size() - 1);
+    }
+
     public List<Long> getValues() {
         return values;
     }
