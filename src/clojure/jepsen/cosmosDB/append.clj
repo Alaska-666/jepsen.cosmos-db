@@ -93,8 +93,6 @@
                (let [txn' (if (<= (count (:value op)) 1)
                             (let [db        (c/db conn databaseName)
                                   container (c/container db containerName)]
-                              (pprint "here")
-                              (pprint (first (:value op)))
                               [(mop! test container (first (:value op)))])
 
                             ; We need a transaction
@@ -102,10 +100,10 @@
                                   container (c/container db containerName)
                                   batch     (c/create-transactional-batch nil)
                                   appends   (HashMap.)]
-                              (info :value (:value op))
+                              (pprint (:value op))
                               (mapv (partial update-batch! container batch appends) (:value op))
                               (let [response (c/execute-batch container batch)]
-                                (info :response ((.getResults response)))
+                                (pprint (.getResults response))
                                 (if (not (.isSuccessStatusCode response))
                                   (assoc op :type :fail, :value :transaction-fail)
                                   (mapv (partial processing-results! container) (.getResults response)))
