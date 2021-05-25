@@ -11,7 +11,7 @@
             [jepsen.tests.cycle.append :as list-append]
             [jepsen.cosmosDB [client :as c]])
   (:import (com.azure.cosmos CosmosException TransactionalBatch TransactionalBatchOperationResult)
-           (com.azure.cosmos.implementation RetryWithException ConflictException)
+           (com.azure.cosmos.implementation RetryWithException ConflictException RequestRateTooLargeException)
            (mipt.bit.utils MyList)
            (java.util HashMap)))
 
@@ -108,6 +108,8 @@
                             )]
                  (assoc op :type :ok, :value txn'))
                )
+      (catch RequestRateTooLargeException e
+        (assoc op :type :fail, :error :request-rate-too-large))
 
       (catch RetryWithException e
         (assoc op :type :fail, :error :conflicting-request))
