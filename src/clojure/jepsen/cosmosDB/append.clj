@@ -12,8 +12,9 @@
             [jepsen.cosmosDB [client :as c]])
   (:import (com.azure.cosmos CosmosException TransactionalBatch TransactionalBatchOperationResult)
            (com.azure.cosmos.implementation RetryWithException ConflictException RequestRateTooLargeException)
-           (mipt.bit.utils MyList)
-           (java.util HashMap)))
+           (mipt.bit.utils Operation TransactionsExecute)
+           (java.util ArrayList List)
+           (org.json JSONObject)))
 
 (def databaseName      "AzureJepsenTestDB")
 (def containerName     "JepsenTestContainer")
@@ -31,32 +32,31 @@
     )
   )
 
-(defn update-batch!
-  [container batch appends [f k v :as mop]]
-  (info :update-batch mop)
+(defn update-operations!
+  [^ArrayList operations [f k v :as mop]]
+  (info :update-operations mop)
   (case f
-    :r       (c/update-batch-read container batch k)
-    :append  (c/update-batch-append container batch appends k v)
+    :r       (.add operations (Operation. "r" k v))
+    :append  (.add operations (Operation. "append" k v))
     )
   )
 
 (def operations
-  {"READ"   :r
-   "UPSERT" :append})
+  {"r"   :r
+   "append" :append})
 
 
 (defn processing-results!
-  [container ^TransactionalBatchOperationResult result]
-  (info :in-processing-results (.toString (.getOperationType (.getOperation result))))
-  (let [operation (.toString (.getOperationType (.getOperation result)))
+  [container ^JSONObject result]
+  (info :in-processing-results (.toString result))
+  (let [operation (.get result "type")
         f         (get operations operation)
-        item      (.getItem result MyList)
-        k         (.getLongId item)
-        values    (.getValues item)
-        v         (.getLastValue item)]
+        k         (.get result "key")
+        values    (.get result "readResult")
+        v         (.get result "value")]
   (case operation
-    "READ"    [f k (vec values)]
-    "UPSERT"  [f k v]))
+    "r"       [f k (vec values)]
+    "append"  [f k v]))
   )
 
 (defrecord Client [conn account-host account-key consistency-level]
@@ -97,13 +97,12 @@
                             ; We need a transaction
                             (let [db        (c/db conn databaseName)
                                   container (c/container db containerName)
-                                  batch     (c/create-transactional-batch nil)
-                                  appends   (HashMap.)]
-                              (mapv (partial update-batch! container batch appends) (:value op))
-                              (let [response (c/execute-batch container batch)]
-                                (if (not (.isSuccessStatusCode response))
+                                  operations   (ArrayList.)]
+                              (mapv (partial update-operations! container operations) (:value op))
+                              (let [^List results (.execute (TransactionsExecute. container) operations)]
+                                (if (not= (.size results) (count (:value op)))
                                   (assoc op :type :fail, :value :transaction-fail)
-                                  (mapv (partial processing-results! container) (.getResults response)))
+                                  (mapv (partial processing-results! container) results))
                                 ))
                             )]
                  (assoc op :type :ok, :value txn'))

@@ -12,11 +12,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class TransactionsExecute {
-//    private final String databaseName;
+    //    private final String databaseName;
 //    private final String containerName;
     private final CosmosContainer container;
 
@@ -37,9 +38,12 @@ public class TransactionsExecute {
         CosmosStoredProcedureRequestOptions options = new CosmosStoredProcedureRequestOptions();
         options.setPartitionKey(new PartitionKey("key"));
         options.setScriptLoggingEnabled(true);
-        CosmosStoredProcedureResponse a = container.getScripts().getStoredProcedure("spCreateToDoItems").execute(Collections.singletonList(operations), options);
+        CosmosStoredProcedureResponse response = container.getScripts().getStoredProcedure("spCreateToDoItems").execute(Collections.singletonList(operations), options);
+        if (response.getStatusCode() != 200) {
+            return Collections.emptyList();
+        }
         List<JSONObject> result = new ArrayList<>();
-        for (String i: a.getResponseAsString().substring(1, a.getResponseAsString().length() - 1).split("},")) {
+        for (String i: response.getResponseAsString().substring(1, response.getResponseAsString().length() - 1).split("},")) {
             JSONObject obj = new JSONObject(i + "}");
             result.add(obj);
         }

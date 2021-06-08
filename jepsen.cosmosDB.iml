@@ -108,7 +108,7 @@
     <orderEntry type="library" name="Leiningen: org.eclipse.jetty/jetty-util:9.4.28.v20200408" level="project" />
     <orderEntry type="library" name="Leiningen: org.fressian/fressian:0.6.6" level="project" />
     <orderEntry type="library" name="Leiningen: org.hdrhistogram/HdrHistogram:2.1.12" level="project" />
-    <orderEntry type="library" name="Leiningen: org.json:20210307" level="project" />
+    <orderEntry type="library" name="Leiningen: org.json/json:20210307" level="project" />
     <orderEntry type="library" name="Leiningen: org.latencyutils/LatencyUtils:2.0.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.reactivestreams/reactive-streams:1.0.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.slf4j/jul-to-slf4j:1.7.25" level="project" />
