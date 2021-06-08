@@ -5,6 +5,7 @@
   :main jepsen.cosmosDB
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [jepsen "0.2.1-SNAPSHOT"]
+                 [org.json/json "20210307"]
                  [com.azure/azure-cosmos "4.8.0"]]
   :jvm-opts ["-Djava.awt.headless=true"]
   :java-source-paths ["src/java/"]
