@@ -52,7 +52,7 @@
   (let [operation (.get result "type")
         f         (get operations operation)
         k         (.get result "key")
-        values    (.get result "readResult")
+        values    (if (.has result  "readResult") (.get result "readResult") [])
         v         (.get result "value")]
   (case operation
     "r"       [f k (vec values)]
