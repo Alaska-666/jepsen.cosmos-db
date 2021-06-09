@@ -51,7 +51,7 @@
   (info :in-processing-results (.toString result))
   (let [operation (.get result "type")
         f         (get operations operation)
-        k         (.get result "key")
+        k         (Long/valueOf (.get result "key"))
         values    (if (.has result  "readResult") (.get result "readResult") [])
         v         (.get result "value")]
   (case operation
