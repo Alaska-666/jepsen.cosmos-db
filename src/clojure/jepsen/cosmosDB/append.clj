@@ -89,13 +89,7 @@
       (info :count (count (:value op)))
 
       (timeout 10000 (assoc op :type :info, :error :timeout)
-               (let [txn' (if (<= (count (:value op)) 1)
-                            (let [db        (c/db conn databaseName)
-                                  container (c/container db containerName)]
-                              [(mop! test container (first (:value op)))])
-
-                            ; We need a transaction
-                            (let [db        (c/db conn databaseName)
+               (let [txn' (let [db        (c/db conn databaseName)
                                   container (c/container db containerName)
                                   operations   (ArrayList.)]
                               (mapv (partial update-operations! operations) (:value op))
@@ -103,8 +97,9 @@
                                 (if (not= (.size results) (count (:value op)))
                                   (assoc op :type :fail, :value :transaction-fail)
                                   (mapv (partial processing-results! container) results))
-                                ))
-                            )]
+                                )
+                              )
+                     ]
                  (assoc op :type :ok, :value txn'))
                )
       (catch RequestRateTooLargeException e
