@@ -18,7 +18,7 @@
 
 (def databaseName      "AzureJepsenTestDB")
 (def containerName     "JepsenTestContainer")
-(def throughput        1000)
+(def throughput        5000)
 (def partitionKeyPath  "/key")
 
 (defn mop!
