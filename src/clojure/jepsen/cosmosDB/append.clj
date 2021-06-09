@@ -98,7 +98,7 @@
                             (let [db        (c/db conn databaseName)
                                   container (c/container db containerName)
                                   operations   (ArrayList.)]
-                              (mapv (partial update-operations! container operations) (:value op))
+                              (mapv (partial update-operations! operations) (:value op))
                               (let [^List results (.execute (TransactionsExecute. container) operations)]
                                 (if (not= (.size results) (count (:value op)))
                                   (assoc op :type :fail, :value :transaction-fail)
