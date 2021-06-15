@@ -17,8 +17,9 @@
       (info node "setup! cosmos db")
       (let [host               (:host opts)
             key                (:key opts)
+            regions            (:regions opts)
             consistency-level  (get c/consistency-levels (:consistency opts))
-            client             (c/build-client node host key consistency-level)]
+            client             (c/build-client node host key consistency-level regions)]
         (try
           (c/create-database! client databaseName)
           (catch CosmosException e#
@@ -34,7 +35,8 @@
         (let [host               (:host opts)
               key                (:key opts)
               consistency-level  (get c/consistency-levels (:consistency opts))
-              client             (c/build-client node host key consistency-level)
+              regions            (:regions opts)
+              client             (c/build-client node host key consistency-level regions)
               db                 (c/db client databaseName)
               container          (c/container db containerName)]
           (if (not (nil? container)) (.delete container))
