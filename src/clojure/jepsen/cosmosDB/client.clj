@@ -27,10 +27,8 @@
 (defn ^CosmosClient build-client
   "???"
   [node ^String host ^String acc-key ^ConsistencyLevel level regions]
-  (info :preferredRegions preferredRegions)
-  (info :regions regions)
 
-  (if (regions)
+  (if regions
     (let [builder (CosmosClientBuilder.)]
       (-> builder
           (.endpoint host)
