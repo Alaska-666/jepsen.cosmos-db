@@ -23,17 +23,32 @@
 
 (def partitionKey "key")
 
+(def preferredRegions (.asList Arrays "East US 2", "East US", "North Europe"))
+
 (defn ^CosmosClient build-client
   "???"
-  [node ^String host ^String acc-key ^ConsistencyLevel level]
-  (let [builder (CosmosClientBuilder.)]
-    (-> builder
-        (.endpoint host)
-        (.key acc-key)
-        (.consistencyLevel level)
-        (.contentResponseOnWriteEnabled true)
-        (.buildClient))
-    ))
+  [node ^String host ^String acc-key ^ConsistencyLevel level regions]
+  (info :preferredRegions preferredRegions)
+  (if (regions)
+    (let [builder (CosmosClientBuilder.)]
+      (-> builder
+          (.endpoint host)
+          (.key acc-key)
+          (.preferredRegions preferredRegions)
+          (.consistencyLevel level)
+          (.contentResponseOnWriteEnabled true)
+          (.buildClient))
+      )
+    (let [builder (CosmosClientBuilder.)]
+      (-> builder
+          (.endpoint host)
+          (.key acc-key)
+          (.consistencyLevel level)
+          (.contentResponseOnWriteEnabled true)
+          (.buildClient))
+      )
+    )
+  )
 
 (def consistency-levels
   {:eventual  (ConsistencyLevel/EVENTUAL)

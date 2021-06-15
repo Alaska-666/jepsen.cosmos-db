@@ -59,10 +59,10 @@
     "append"  [f k v]))
   )
 
-(defrecord Client [conn account-host account-key consistency-level]
+(defrecord Client [conn account-host account-key consistency-level regions]
   client/Client
   (open! [this test node]
-    (assoc this :conn (c/build-client node account-host account-key consistency-level)))
+    (assoc this :conn (c/build-client node account-host account-key consistency-level regions)))
 
   (setup! [this test]
     (try
@@ -136,9 +136,10 @@
   [opts]
   (let [host               (:host opts)
         key                (:key opts)
+        regions            (:regions opts)
         consistency-level  (get c/consistency-levels (:consistency opts))]
     (assoc (list-append/test {:key-count          10
                               :key-dist           :exponential
                               :max-txn-length     (:max-txn-length opts 4)
                               :max-writes-per-key (:max-writes-per-key opts)})
-      :client (Client. nil host key consistency-level))))
+      :client (Client. nil host key consistency-level regions))))

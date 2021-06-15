@@ -47,6 +47,9 @@
    [nil "--host STRING" "Azure Cosmos DB account host."
     :default "https://localhost:8081"]
 
+   [nil "--regions" "Regions for global data replication."
+    :default false]
+
    ["-w" "--workload NAME" "What workload should we run?"
     :parse-fn keyword
     :validate [workloads (cli/one-of workloads)]]
