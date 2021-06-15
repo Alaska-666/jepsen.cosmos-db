@@ -22,8 +22,7 @@
            (java.util.stream Stream Collectors)))
 
 (def partitionKey "key")
-
-(def preferredRegions (.asList Arrays "East US 2", "East US", "North Europe"))
+(def preferredRegions (doto (new ArrayList) (.add "East US 2") (.add "East US") (.add "North Europe")))
 
 (defn ^CosmosClient build-client
   "???"
